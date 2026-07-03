@@ -15,3 +15,18 @@ export async function buscarUsuario(id) {
   if (error) throw error;
   return data;
 }
+
+/**
+ * Busca todos os usuários, ordenado por nome (A-Z).
+ * Depende da policy de select em public.usuarios para a role supervisor.
+ * @returns {Promise<Array>}
+ */
+export async function buscarTodosUsuarios() {
+  const { data, error } = await supabase
+    .from('usuarios')
+    .select('*')
+    .order('nome', { ascending: true });
+
+  if (error) throw error;
+  return data;
+}

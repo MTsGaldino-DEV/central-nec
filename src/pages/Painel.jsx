@@ -7,6 +7,7 @@ import StatsRow from '../components/StatsRow';
 import OcorrenciasList from '../components/OcorrenciasList';
 import ModalNovaOcorrencia from '../components/ModalNovaOcorrencia';
 import ModalDetalheOcorrencia from '../components/ModalDetalheOcorrencia';
+import { useToast, ToastContainer } from '../components/Toast';
 
 const VIEW_META = {
   minhas:    { title: 'Minhas Ocorrências',    sub: 'Registros enviados por você' },
@@ -16,6 +17,7 @@ const VIEW_META = {
 
 export default function Painel() {
   const { usuarioAtual, role } = useAuth();
+  const { toasts, addToast, removeToast } = useToast();
 
   // ── View / filter state ───────────────────────────────────────────────
   const defaultView = role === 'supervisor' ? 'pendentes' : 'minhas';
@@ -68,7 +70,24 @@ export default function Painel() {
     setFiltroStatus('todos');
   };
 
+  // Chamado pelo ModalDetalheOcorrencia após aprovar/reprovar
+  const handleDecisao = (ocorrenciaAtualizada, msgSucesso) => {
+    // O Realtime atualiza a lista automaticamente.
+    // Se o modal passou uma mensagem de sucesso, exibimos aqui.
+    if (msgSucesso) addToast(msgSucesso, 'success');
+    setOcorrenciaSelecionada(null);
+  };
+
   const meta = VIEW_META[activeView] ?? VIEW_META[defaultView];
+
+  // Label legível do filtro ativo — usado no relatório impresso
+  const filtroLabel = [
+    meta.title,
+    filtroStatus !== 'todos' ? `status: ${filtroStatus.replace('_', ' ')}` : null,
+    busca.trim() ? `busca: "${busca.trim()}"` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
     <div className="app">
@@ -81,13 +100,50 @@ export default function Painel() {
       />
 
       <div className="main">
-        <Topbar title={meta.title} subtitle={meta.sub} />
+        <Topbar
+          title={meta.title}
+          subtitle={meta.sub}
+          ocorrenciasFiltradas={listaFiltrada}
+          filtroLabel={filtroLabel}
+        />
 
         <div className="content">
           {loadingOcorrencias ? (
-            <div style={{ color: 'var(--text-faint)', fontSize: 13, padding: '40px 0', textAlign: 'center' }}>
-              Carregando ocorrências...
-            </div>
+            <>
+              {/* Skeleton Stats */}
+              <div className="skeleton-stats">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="skeleton-stat-card">
+                    <div className="skeleton sk-num"></div>
+                    <div className="skeleton sk-lbl"></div>
+                  </div>
+                ))}
+              </div>
+              {/* Skeleton List */}
+              <div className="skeleton-list">
+                <div className="row head">
+                  <div>Data / Hora</div>
+                  <div>Nº Serviço</div>
+                  <div>Ocorrência</div>
+                  <div>Equipe</div>
+                  <div>Status</div>
+                  <div>Fluxo</div>
+                </div>
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} className="skeleton-row">
+                    <div className="skeleton sk-cell" style={{ width: '80%' }}></div>
+                    <div className="skeleton sk-cell" style={{ width: '90%' }}></div>
+                    <div>
+                      <div className="skeleton sk-cell" style={{ width: '100%', marginBottom: 6 }}></div>
+                      <div className="skeleton sk-cell" style={{ width: '60%' }}></div>
+                    </div>
+                    <div className="skeleton sk-cell" style={{ width: '70%' }}></div>
+                    <div className="skeleton sk-cell" style={{ width: '85px', borderRadius: 20 }}></div>
+                    <div className="skeleton sk-cell" style={{ width: '60px' }}></div>
+                  </div>
+                ))}
+              </div>
+            </>
           ) : (
             <>
               <StatsRow ocorrencias={ocorrencias} role={role} />
@@ -119,8 +175,12 @@ export default function Painel() {
         <ModalDetalheOcorrencia
           ocorrencia={ocorrenciaSelecionada}
           onClose={() => setOcorrenciaSelecionada(null)}
+          onDecisao={handleDecisao}
         />
       )}
+
+      {/* Toasts globais do painel */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

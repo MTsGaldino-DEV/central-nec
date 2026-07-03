@@ -105,7 +105,7 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
 
   const addToast = (msg) => {
     const id = Date.now();
-    setToasts((t) => [...t, { id, msg }]);
+    setToasts((t) => [...t, { id, msg, type: 'warning' }]);
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 5000);
   };
 
@@ -115,6 +115,11 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
 
     if (!form.numero_servico || !form.csi || !form.equipe || !form.tipo || !form.descricao) {
       setErro('Preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    if (!/^\d{9}$/.test(form.numero_servico)) {
+      setErro('O Nº do Serviço deve conter exatamente 9 dígitos.');
       return;
     }
 
@@ -133,7 +138,8 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
       };
       novaOcorrencia = await criarOcorrencia(payload);
     } catch (err) {
-      setErro(err.message ?? 'Erro ao registrar ocorrência.');
+      console.error('Erro ao criar ocorrência:', err);
+      setErro('Não foi possível concluir a ação. Atualize a página e tente novamente.');
       setLoading(false);
       setEnviando(false);
       return;
@@ -148,7 +154,8 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
       try {
         fotoPaths[key] = await uploadFoto(novaOcorrencia.id, key, file);
       } catch (err) {
-        addToast(`Foto "${key.replace('_', ' ')}": ${err.message}`);
+        console.error('Erro no upload de foto:', err);
+        addToast(`Não foi possível enviar a foto "${key.replace('_', ' ')}". Verifique o arquivo e tente novamente.`);
       }
     });
 
@@ -201,9 +208,15 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
                 <label>Nº do Serviço <span className="req">*</span></label>
                 <input
                   type="text"
-                  placeholder="ex: SRV-2024-00123"
+                  placeholder="ex: 243520170"
+                  maxLength={9}
+                  pattern="\d{9}"
+                  title="Deve conter exatamente 9 dígitos"
                   value={form.numero_servico}
-                  onChange={set('numero_servico')}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, ''); // Apenas números
+                    setForm((prev) => ({ ...prev, numero_servico: val }));
+                  }}
                   required
                   disabled={isBlocked}
                 />

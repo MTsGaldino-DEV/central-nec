@@ -1,7 +1,18 @@
+import { useNavigate, useLocation } from 'react-router-dom';
+
 const IcList = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
     <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
+  </svg>
+);
+
+const IcUsers = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
 
@@ -37,6 +48,9 @@ const IcPlus = () => (
  *  - onNovaOcorrencia: () => void
  */
 export default function Sidebar({ role, ocorrencias = [], activeView, onNavigate, onNovaOcorrencia }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const total = ocorrencias.length;
   const pendentes = ocorrencias.filter((o) => o.status === 'em_analise').length;
 
@@ -74,6 +88,12 @@ export default function Sidebar({ role, ocorrencias = [], activeView, onNavigate
       icon: <IcPlus />,
       isAction: true,
     },
+    {
+      id: 'usuarios',
+      label: 'Gestão de Usuários',
+      icon: <IcUsers />,
+      path: '/usuarios',
+    },
   ];
 
   const items = role === 'supervisor' ? supervisorItems : despachanteItems;
@@ -81,8 +101,14 @@ export default function Sidebar({ role, ocorrencias = [], activeView, onNavigate
   const handleClick = (item) => {
     if (item.isAction) {
       onNovaOcorrencia?.();
+    } else if (item.path) {
+      if (location.pathname !== item.path) navigate(item.path);
     } else {
-      onNavigate?.(item.id);
+      if (location.pathname !== '/') {
+        navigate('/');
+      } else {
+        onNavigate?.(item.id);
+      }
     }
   };
 
@@ -106,7 +132,7 @@ export default function Sidebar({ role, ocorrencias = [], activeView, onNavigate
         {items.map((item) => (
           <button
             key={item.id}
-            className={`nav-item${!item.isAction && activeView === item.id ? ' active' : ''}`}
+            className={`nav-item${(!item.isAction && activeView === item.id) || (item.path && location.pathname === item.path) ? ' active' : ''}`}
             onClick={() => handleClick(item)}
           >
             {item.icon}
