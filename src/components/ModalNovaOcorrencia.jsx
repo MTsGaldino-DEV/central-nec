@@ -7,16 +7,16 @@ const TIPOS = [
   'Acidente de trânsito',
   'Avaria em equipamento',
   'Ocorrência com equipe',
-  'Intercorrência de rota',
+  'Intercorrência de evidencia1',
   'Desvio de procedimento',
   'Reclamação de cliente',
   'Outro',
 ];
 
 const SLOTS = [
-  { key: 'rota',           label: 'Foto da Rota' },
-  { key: 'conversa_csi',   label: 'Conversa CSI' },
-  { key: 'conversa_equipe', label: 'Conversa Equipe' },
+  { key: 'evidencia1', label: 'Evidência 1' },
+  { key: 'evidencia2', label: 'Evidência 2' },
+  { key: 'evidencia2', label: 'Evidência 3' },
 ];
 
 // ── Ícones ────────────────────────────────────────────────────────────────────
@@ -68,20 +68,20 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
     data_hora: new Date().toISOString().slice(0, 16),
   });
 
-  // preview local: { rota: dataURL|null, conversa_csi: ..., conversa_equipe: ... }
-  const [previews, setPreviews] = useState({ rota: null, conversa_csi: null, conversa_equipe: null });
+  // preview local: { evidencia1: dataURL|null, evidencia2: ..., evidencia2: ... }
+  const [previews, setPreviews] = useState({ evidencia1: null, evidencia2: null, evidencia2: null });
   // arquivo selecionado por slot
-  const [arquivos, setArquivos] = useState({ rota: null, conversa_csi: null, conversa_equipe: null });
+  const [arquivos, setArquivos] = useState({ evidencia1: null, evidencia2: null, evidencia2: null });
 
-  const [loading,  setLoading]  = useState(false); // campos do form
+  const [loading, setLoading] = useState(false); // campos do form
   const [enviando, setEnviando] = useState(false); // upload em progresso
-  const [erro,     setErro]     = useState('');
-  const [toasts,   setToasts]   = useState([]);    // avisos não-fatais de upload
+  const [erro, setErro] = useState('');
+  const [toasts, setToasts] = useState([]);    // avisos não-fatais de upload
 
   const inputRefs = {
-    rota:            useRef(null),
-    conversa_csi:    useRef(null),
-    conversa_equipe: useRef(null),
+    evidencia1: useRef(null),
+    evidencia2: useRef(null),
+    evidencia2: useRef(null),
   };
 
   const set = (field) => (e) =>
@@ -133,7 +133,7 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
       const payload = {
         ...form,
         data_hora: new Date(form.data_hora).toISOString(),
-        despachante_id:   usuarioAtual.id,
+        despachante_id: usuarioAtual.id,
         despachante_nome: usuarioAtual.nome,
       };
       novaOcorrencia = await criarOcorrencia(payload);
@@ -146,7 +146,7 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
     }
 
     // 2. Upload individual por slot — falhas geram toasts mas não apagam a ocorrência
-    const fotoPaths = { rota: null, conversa_csi: null, conversa_equipe: null };
+    const fotoPaths = { evidencia1: null, evidencia2: null, evidencia2: null };
 
     const uploadPromises = SLOTS.map(async ({ key }) => {
       const file = arquivos[key];
@@ -427,7 +427,7 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
       </div>
 
       {/* Keyframe de spin inline para o IcSpinner */}
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`@keyframes spin { to { transform: evidencia1te(360deg); } }`}</style>
     </div>
   );
 }
