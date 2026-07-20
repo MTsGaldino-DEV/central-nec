@@ -80,7 +80,7 @@ export default function Sidebar({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const total = ocorrencias.length;
+  const total = ocorrencias.filter((o) => o.status !== 'cancelado').length;
   const pendentes = ocorrencias.filter((o) => o.status === 'em_analise').length;
 
   // Grupos abertos por padrão

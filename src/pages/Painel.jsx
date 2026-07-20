@@ -49,6 +49,8 @@ export default function Painel() {
 
     if (filtroStatus !== 'todos') {
       lista = lista.filter((o) => o.status === filtroStatus);
+    } else {
+      lista = lista.filter((o) => o.status !== 'cancelado');
     }
 
     if (filtroTipoEquipe !== 'todos') {

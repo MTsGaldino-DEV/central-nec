@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { obterUrlAssinada } from '../data/fotos';
-import { atualizarStatusOcorrencia } from '../data/ocorrencias';
+import { atualizarStatusOcorrencia, editarOcorrencia } from '../data/ocorrencias';
 import { useAuth } from '../context/AuthContext';
 import { useToast, ToastContainer } from './Toast';
 
@@ -132,6 +132,53 @@ export default function ModalDetalheOcorrencia({ ocorrencia, onClose, onDecisao 
   // Reseta o campo de observação sempre que a ocorrência muda
   useEffect(() => { setObservacao(''); }, [ocorrencia?.id]);
 
+  const [editando, setEditando] = useState(false);
+  const [formEdit, setFormEdit] = useState({
+    numero_servico: '',
+    tipo: '',
+    tipo_equipe: '',
+    equipe: '',
+    csi: '',
+    descricao: '',
+  });
+
+  useEffect(() => {
+    if (!ocorrencia) return;
+    setFormEdit({
+      numero_servico: ocorrencia.numero_servico ?? '',
+      tipo: ocorrencia.tipo ?? '',
+      tipo_equipe: ocorrencia.tipo_equipe ?? '',
+      equipe: ocorrencia.equipe ?? '',
+      csi: ocorrencia.csi ?? '',
+      descricao: ocorrencia.descricao ?? '',
+    });
+  }, [ocorrencia]);
+
+  const handleSalvarEdicao = async () => {
+    if (!formEdit.csi || !formEdit.tipo || !formEdit.tipo_equipe || !formEdit.descricao) {
+      addToast('Preencha todos os campos obrigatórios.', 'warning');
+      return;
+    }
+
+    if (formEdit.numero_servico && !/^\d{9}$/.test(formEdit.numero_servico)) {
+      addToast('O Nº do Serviço deve conter exatamente 9 dígitos.', 'warning');
+      return;
+    }
+
+    setSalvando(true);
+    try {
+      const atualizada = await editarOcorrencia(ocorrencia.id, formEdit);
+      addToast('Ocorrência atualizada com sucesso!', 'success');
+      setEditando(false);
+      onDecisao?.(atualizada, 'Ocorrência editada com sucesso.');
+    } catch (err) {
+      console.error('Erro ao editar ocorrência:', err);
+      addToast('Erro ao salvar as edições: ' + err.message, 'error');
+    } finally {
+      setSalvando(false);
+    }
+  };
+
   if (!ocorrencia) return null;
 
   const fotos = ocorrencia.fotos ?? {};
@@ -141,6 +188,8 @@ export default function ModalDetalheOcorrencia({ ocorrencia, onClose, onDecisao 
   const despachantePodeCancelar = role === 'despachante' && ocorrencia.status === 'em_analise';
   const supervisorPodeCancelar = role === 'supervisor' && ocorrencia.status !== 'cancelado';
   const supervisorPodeVoltar = role === 'supervisor' && ocorrencia.status !== 'em_analise';
+
+  const podeEditar = ocorrencia.status === 'em_analise' && (role === 'supervisor' || ocorrencia.despachante_id === usuarioAtual?.id);
 
   // ── Handlers de decisão ───────────────────────────────────────────────────
   const handleDecisao = async (novoStatus) => {
@@ -194,9 +243,9 @@ export default function ModalDetalheOcorrencia({ ocorrencia, onClose, onDecisao 
           {/* Head */}
           <div className="modal-head">
             <div>
-              <h2>Detalhe da Ocorrência</h2>
+              <h2>Detalhe da Ocorrência {ocorrencia.id_sequencial ? `#${ocorrencia.id_sequencial}` : ''}</h2>
               <div className="sub" style={{ fontFamily: 'monospace', fontSize: 12, letterSpacing: '0.02em' }}>
-                {ocorrencia.numero_servico}
+                {ocorrencia.numero_servico ? `Serviço nº ${ocorrencia.numero_servico}` : 'Sem Nº de Serviço'}
               </div>
             </div>
             <button className="modal-close" onClick={onClose} disabled={salvando} aria-label="Fechar modal">
@@ -228,17 +277,99 @@ export default function ModalDetalheOcorrencia({ ocorrencia, onClose, onDecisao 
             </div>
 
             {/* Grid de detalhes */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 24px', marginBottom: 16 }}>
-              <Detail label="Tipo de ocorrência" value={ocorrencia.tipo} />
-              <Detail label="Tipo de Equipe" value={ocorrencia.tipo_equipe} />
-              <Detail label="Equipe" value={ocorrencia.equipe} />
-              <Detail label="CSI" value={ocorrencia.csi} />
-            </div>
+            {editando ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 24px' }}>
+                  <div className="field">
+                    <label>Nº do Serviço</label>
+                    <input
+                      type="text"
+                      maxLength={9}
+                      placeholder="ex: 243520170"
+                      value={formEdit.numero_servico}
+                      onChange={(e) => setFormEdit(f => ({ ...f, numero_servico: e.target.value.replace(/\D/g, '') }))}
+                      disabled={salvando}
+                    />
+                  </div>
+                  <div className="field">
+                    <label>CSI <span className="req">*</span></label>
+                    <input
+                      type="text"
+                      placeholder="CSI"
+                      value={formEdit.csi}
+                      onChange={(e) => setFormEdit(f => ({ ...f, csi: e.target.value }))}
+                      required
+                      disabled={salvando}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 24px' }}>
+                  <div className="field">
+                    <label>Tipo de Ocorrência <span className="req">*</span></label>
+                    <select
+                      value={formEdit.tipo}
+                      onChange={(e) => setFormEdit(f => ({ ...f, tipo: e.target.value }))}
+                      required
+                      disabled={salvando}
+                    >
+                      <option value="">Selecione o tipo...</option>
+                      {['Avaria em equipamento', 'Ocorrência com equipe', 'Intercorrência de Rota', 'Desvio de procedimento', 'Reclamação de cliente', 'Outro'].map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label>Tipo de Equipe <span className="req">*</span></label>
+                    <select
+                      value={formEdit.tipo_equipe}
+                      onChange={(e) => setFormEdit(f => ({ ...f, tipo_equipe: e.target.value }))}
+                      required
+                      disabled={salvando}
+                    >
+                      <option value="">Selecione...</option>
+                      {['Multifuncional', 'Moto'].map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="field">
+                  <label>Equipe</label>
+                  <input
+                    type="text"
+                    placeholder="Nome/código da equipe"
+                    value={formEdit.equipe}
+                    onChange={(e) => setFormEdit(f => ({ ...f, equipe: e.target.value }))}
+                    disabled={salvando}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 24px', marginBottom: 16 }}>
+                <Detail label="Tipo de ocorrência" value={ocorrencia.tipo} />
+                <Detail label="Tipo de Equipe" value={ocorrencia.tipo_equipe} />
+                <Detail label="Equipe" value={ocorrencia.equipe} />
+                <Detail label="CSI" value={ocorrencia.csi} />
+              </div>
+            )}
 
             {/* Descrição */}
             <div className="field" style={{ marginBottom: 16 }}>
-              <label style={{ marginBottom: 4, display: 'block' }}>Descrição</label>
-              <TextBox>{ocorrencia.descricao || '—'}</TextBox>
+              <label style={{ marginBottom: 4, display: 'block' }}>Descrição {editando && <span className="req">*</span>}</label>
+              {editando ? (
+                <textarea
+                  placeholder="Descreva o ocorrido..."
+                  value={formEdit.descricao}
+                  onChange={(e) => setFormEdit(f => ({ ...f, descricao: e.target.value }))}
+                  required
+                  disabled={salvando}
+                  style={{ minHeight: 90, width: '100%', resize: 'vertical' }}
+                />
+              ) : (
+                <TextBox>{ocorrencia.descricao || '—'}</TextBox>
+              )}
             </div>
 
             {/* ── Decision box ─────────────────────────────────────────── */}
@@ -323,21 +454,43 @@ export default function ModalDetalheOcorrencia({ ocorrencia, onClose, onDecisao 
 
           {/* Footer */}
           <div className="modal-foot" style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', gap: 10 }}>
-              {(despachantePodeCancelar || supervisorPodeCancelar) && (
-                <button type="button" className="btn btn-outline" style={{ borderColor: 'rgba(220,38,38,0.5)', color: '#f87171' }} onClick={() => handleDecisao('cancelado')} disabled={salvando}>
-                  Cancelar Ocorrência
+            {editando ? (
+              <div style={{ display: 'flex', gap: 10, width: '100%', justifyContent: 'flex-end' }}>
+                <button type="button" className="btn btn-outline" onClick={() => setEditando(false)} disabled={salvando}>
+                  Cancelar
                 </button>
-              )}
-              {supervisorPodeVoltar && (
-                <button type="button" className="btn btn-outline" onClick={() => handleDecisao('em_analise')} disabled={salvando}>
-                  Voltar para Análise
+                <button type="button" className="btn btn-primary" onClick={handleSalvarEdicao} disabled={salvando}>
+                  {salvando ? (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><IcSpinner /> Salvando…</span>
+                  ) : (
+                    'Salvar Alterações'
+                  )}
                 </button>
-              )}
-            </div>
-            <button type="button" className="btn btn-outline" onClick={onClose} disabled={salvando}>
-              Fechar
-            </button>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  {(despachantePodeCancelar || supervisorPodeCancelar) && (
+                    <button type="button" className="btn btn-outline" style={{ borderColor: 'rgba(220,38,38,0.5)', color: '#f87171' }} onClick={() => handleDecisao('cancelado')} disabled={salvando}>
+                      Cancelar Ocorrência
+                    </button>
+                  )}
+                  {supervisorPodeVoltar && (
+                    <button type="button" className="btn btn-outline" onClick={() => handleDecisao('em_analise')} disabled={salvando}>
+                      Voltar para Análise
+                    </button>
+                  )}
+                  {podeEditar && (
+                    <button type="button" className="btn btn-outline" onClick={() => setEditando(true)} disabled={salvando}>
+                      Editar Ocorrência
+                    </button>
+                  )}
+                </div>
+                <button type="button" className="btn btn-outline" onClick={onClose} disabled={salvando}>
+                  Fechar
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

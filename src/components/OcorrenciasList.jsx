@@ -127,6 +127,7 @@ export default function OcorrenciasList({
       {/* Table */}
       <div className="list-card">
         <div className="row head">
+          <div>ID</div>
           <div>Data / Hora</div>
           <div>Nº Serviço</div>
           <div>Ocorrência</div>
@@ -144,10 +145,13 @@ export default function OcorrenciasList({
               className="row body-row"
               onClick={() => onRowClick?.(o)}
             >
+              <div className="cell-id mono">{o.id_sequencial ? `#${o.id_sequencial}` : '—'}</div>
               <div className="cell-date mono">{fmtData(o.data_hora)}</div>
-              <div className="cell-servico mono">{o.numero_servico}</div>
+              <div className="cell-servico mono">{o.numero_servico || '—'}</div>
               <div className="cell-desc">
-                <div className="tipo">{o.tipo}</div>
+                <div className="tipo">
+                  {o.tipo}
+                </div>
                 <div className="csi" style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <span>{o.csi}</span>
                   {o.tipo_equipe && (

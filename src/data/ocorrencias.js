@@ -76,3 +76,19 @@ export async function atualizarFotosOcorrencia(id, fotos) {
   if (error) throw new Error('Falha ao salvar fotos: ' + error.message);
   return data;
 }
+
+/**
+ * Edita campos de uma ocorrência (tipo, tipo_equipe, equipe, csi, descricao, numero_servico).
+ */
+export async function editarOcorrencia(id, campos) {
+  const { data, error } = await supabase
+    .from('ocorrencias')
+    .update(campos)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw new Error('Falha ao editar ocorrência: ' + error.message);
+  return data;
+}
+

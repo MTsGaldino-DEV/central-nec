@@ -122,7 +122,7 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
     e.preventDefault();
     setErro('');
 
-    if (!form.csi || !form.equipe || !form.tipo || !form.tipo_equipe || !form.descricao) {
+    if (!form.csi || !form.tipo || !form.tipo_equipe || !form.descricao) {
       setErro('Preencha todos os campos obrigatórios.');
       return;
     }
@@ -255,13 +255,12 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
                 />
               </div>
               <div className="field">
-                <label>Equipe <span className="req">*</span></label>
+                <label>Equipe</label>
                 <input
                   type="text"
                   placeholder="Nome ou código da equipe"
                   value={form.equipe}
                   onChange={set('equipe')}
-                  required
                   disabled={isBlocked}
                 />
               </div>
