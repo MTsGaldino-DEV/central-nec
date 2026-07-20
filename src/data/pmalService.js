@@ -5,8 +5,9 @@
 // ---------------------------------------------------------------------------
 
 // Credenciais/paths dos endpoints (roteados pelo proxy Vite em dev)
+const GDIS_BASE_URL = import.meta.env.VITE_GDIS_BASE_URL || '/api/gdis';
 // O proxy remove /api/gdis, então precisamos incluir o /WebConsultaGdis aqui
-const BASE = '/api/gdis/WebConsultaGdis/ws/contratada';
+const BASE = `${GDIS_BASE_URL}/WebConsultaGdis/ws/contratada`;
 const CNPJ = '21066139000108';
 const COD_LOCAL = '3944471200017';
 const MATRICULA = 'e252135';
