@@ -1217,3 +1217,971 @@ input, select, textarea {
   body { background: #fff; }
 }
 
+/* ============================================================
+   SIDEBAR — Grupos colapsáveis
+   ============================================================ */
+
+.nav-group {
+  margin-bottom: 4px;
+}
+
+.nav-group-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 10px 6px;
+  background: transparent;
+  border: none;
+  color: #6C7C99;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  cursor: pointer;
+  transition: color .12s;
+}
+
+.nav-group-label:hover {
+  color: #8B99B3;
+}
+
+.nav-group-chevron {
+  display: flex;
+  align-items: center;
+}
+
+.nav-group-chevron svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* Wrapper colapsável com animação suave */
+.nav-group-items {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .25s ease;
+}
+
+.nav-group-items.open {
+  max-height: 400px; /* valor generoso para não cortar */
+}
+
+/* Item de ação (Nova Ocorrência) com estilo ligeiramente diferente */
+.nav-item.nav-item-action {
+  color: var(--amber);
+  opacity: .85;
+}
+.nav-item.nav-item-action:hover {
+  background: rgba(245, 165, 36, .12);
+  color: var(--amber);
+  opacity: 1;
+}
+
+/* ============================================================
+   PAINEL PMAL — Design system
+   Usa as variáveis CSS do projeto: --navy, --amber, --bg, etc.
+   ============================================================ */
+
+.pmal-content {
+  max-width: 1300px;
+}
+
+/* ── Header ── */
+.pmal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+  flex-wrap: wrap;
+}
+
+.pmal-header-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--amber-dark);
+  margin-bottom: 4px;
+}
+
+.pmal-header-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pmal-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.pmal-last-update {
+  text-align: right;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.pmal-last-update-time {
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 1px;
+}
+
+.pmal-refresh-btn {
+  gap: 8px;
+  font-size: 13px;
+}
+
+@keyframes pmal-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.pmal-spin {
+  animation: pmal-spin .8s linear infinite;
+}
+
+/* ── Erro banner ── */
+.pmal-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--red-bg);
+  color: #C4342A;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.pmal-error-retry {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── Skeleton ── */
+.pmal-skeleton-wrap { display: flex; flex-direction: column; gap: 20px; }
+
+.pmal-skeleton-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+/* ── KPI Cards ── */
+.pmal-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.pmal-kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+
+.pmal-kpi-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  flex-shrink: 0;
+}
+
+.pmal-kpi-navy  { background: var(--navy); }
+.pmal-kpi-red   { background: var(--red); }
+.pmal-kpi-green { background: var(--green); }
+.pmal-kpi-amber { background: var(--amber-dark); }
+
+.pmal-kpi-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-muted);
+}
+
+.pmal-kpi-value {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+/* ── Generic card ── */
+.pmal-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+
+.pmal-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.pmal-card-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pmal-card-hint {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.pmal-flex-gap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── 2-col row ── */
+.pmal-row-2col {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* ── Donut ── */
+.pmal-donut-card { margin-bottom: 0; }
+
+.pmal-donut-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pmal-donut-chart {
+  position: relative;
+  width: 176px;
+  height: 176px;
+  flex-shrink: 0;
+}
+
+.pmal-donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.pmal-donut-total {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.pmal-donut-sub {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text-faint);
+}
+
+.pmal-donut-legend {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pmal-legend-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: background .12s, opacity .12s;
+  color: var(--text);
+}
+
+.pmal-legend-btn:hover { background: var(--gray-bg); }
+.pmal-legend-btn:not(.active) { opacity: .4; }
+.pmal-legend-btn:not(.active):hover { opacity: .7; }
+.pmal-legend-btn.active { background: var(--gray-bg); }
+
+.pmal-legend-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.pmal-legend-count {
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Pulse dot */
+.pmal-pulse-dot {
+  position: relative;
+  display: inline-flex;
+}
+
+.pmal-pulse-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: pmal-ping .9s cubic-bezier(0,0,.2,1) infinite;
+  opacity: .55;
+}
+
+@keyframes pmal-ping {
+  0%   { transform: scale(1); opacity: .55; }
+  75%, 100% { transform: scale(1.9); opacity: 0; }
+}
+
+.pmal-pulse-core {
+  position: relative;
+  display: inline-flex;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+/* ── Postos ── */
+.pmal-postos-card { margin-bottom: 0; }
+
+.pmal-postos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.pmal-posto-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--gray-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .12s, background .12s, box-shadow .12s;
+}
+
+.pmal-posto-btn:hover {
+  border-color: #adb5c4;
+}
+
+.pmal-posto-btn.active {
+  border-color: var(--amber);
+  background: rgba(245, 165, 36, .08);
+  box-shadow: 0 0 0 2px rgba(245, 165, 36, .25);
+}
+
+.pmal-posto-num {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.pmal-posto-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pmal-posto-count {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+/* ── Filtros ── */
+.pmal-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.pmal-filter-select-wrap {
+  position: relative;
+}
+
+.pmal-select {
+  appearance: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 30px 8px 12px;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+  transition: border-color .12s;
+}
+
+.pmal-select:focus {
+  border-color: var(--amber-dark);
+  box-shadow: 0 0 0 3px rgba(245,165,36,.15);
+}
+
+.pmal-select-chevron {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text-faint);
+}
+
+/* Pill toggle */
+.pmal-pill-toggle {
+  display: inline-flex;
+  background: var(--gray-bg);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 3px;
+}
+
+.pmal-pill-btn {
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background .12s, color .12s, box-shadow .12s;
+}
+
+.pmal-pill-btn.active {
+  background: var(--card);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  font-weight: 600;
+}
+
+/* Search */
+.pmal-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.pmal-search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+}
+
+.pmal-search-input {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px 8px 34px;
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: border-color .12s;
+}
+
+.pmal-search-input:focus {
+  border-color: var(--amber-dark);
+  box-shadow: 0 0 0 3px rgba(245,165,36,.15);
+}
+
+.pmal-search-input::placeholder { color: var(--text-faint); }
+
+/* ── Gráfico wrapper ── */
+.pmal-chart-card {
+  margin-bottom: 20px;
+}
+
+/* ── 3-col row ── */
+.pmal-row-3col {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* Placeholder (compensação financeira) */
+.pmal-placeholder-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  border: 1.5px dashed #F5A524;
+  background: rgba(245,165,36,.06);
+  border-radius: 9px;
+  padding: 20px 14px;
+}
+
+.pmal-placeholder-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--amber-dark);
+}
+
+.pmal-placeholder-sub {
+  font-size: 11px;
+  color: #C97F0A;
+  line-height: 1.5;
+}
+
+/* Scroll list (material pesado / conjunto) */
+.pmal-scroll-list {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pmal-empty-msg {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.pmal-count-badge {
+  background: var(--gray-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 1px 8px;
+}
+
+.pmal-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--gray-bg);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: background .12s;
+}
+.pmal-list-row:hover { background: var(--border); }
+
+.pmal-num-mono {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.pmal-mono-badge-dark {
+  background: var(--navy);
+  color: #fff;
+  border-radius: 5px;
+  padding: 1px 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  margin-right: 6px;
+}
+
+/* Serviços em conjunto */
+.pmal-conjunto-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  background: var(--gray-bg);
+  border-radius: 8px;
+  padding: 8px 12px;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.pmal-conjunto-info { flex: 1; min-width: 0; }
+
+.pmal-conjunto-end {
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pmal-conjunto-muni {
+  font-size: 11px;
+  color: var(--text-faint);
+}
+
+.pmal-conjunto-nums {
+  width: 100%;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pmal-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .12s;
+}
+.pmal-copy-btn:hover { background: var(--navy-2); }
+
+/* ── Tabela de serviços ── */
+.pmal-table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pmal-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+
+.pmal-table thead {
+  background: var(--gray-bg);
+}
+
+.pmal-table th {
+  padding: 10px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.pmal-table-row {
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .1s;
+}
+
+.pmal-table-row:hover { background: #FAFBFC; }
+
+.pmal-table td {
+  padding: 10px 16px;
+}
+
+.pmal-td-mono {
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--text);
+}
+
+.pmal-td-muted { color: var(--text-muted); }
+
+.pmal-vencido { color: var(--red) !important; font-weight: 700; }
+
+.pmal-dash { color: var(--text-faint); }
+
+/* Badges de situação */
+.pmal-situacao-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.pmal-tipo-badge {
+  background: var(--gray-bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.pmal-badge-vencido {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--red-bg);
+  color: #C4342A;
+  border-radius: 20px;
+  padding: 3px 9px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.pmal-badge-bucket {
+  background: var(--gray-bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 20px;
+  padding: 3px 9px;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+.pmal-table-footer {
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--text-faint);
+  border-top: 1px solid var(--border);
+}
+
+.pmal-table-empty {
+  padding: 40px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ── Modal PMAL ── */
+.pmal-modal { max-width: 680px; }
+
+.pmal-modal-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.pmal-tag-gv {
+  background: var(--navy);
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 11px;
+}
+
+.pmal-modal-tipo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.pmal-mono-badge {
+  background: var(--gray-bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pmal-posto-hint {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  margin-top: 2px;
+}
+
+.pmal-multa-aviso {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(245,165,36,.1);
+  color: var(--amber-dark);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.pmal-annotation-section {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.pmal-annotation-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.pmal-annotation-textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  outline: none;
+  resize: vertical;
+  min-height: 76px;
+  transition: border-color .12s;
+}
+
+.pmal-annotation-textarea:focus {
+  border-color: var(--amber-dark);
+  box-shadow: 0 0 0 3px rgba(245,165,36,.15);
+}
+
+/* ── Responsivo PMAL ── */
+@media (max-width: 1100px) {
+  .pmal-row-2col  { grid-template-columns: 1fr; }
+  .pmal-row-3col  { grid-template-columns: 1fr 1fr; }
+  .pmal-kpis      { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 720px) {
+  .pmal-row-3col  { grid-template-columns: 1fr; }
+  .pmal-postos-grid { grid-template-columns: 1fr; }
+  .pmal-skeleton-kpis { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Chip de filtro de bucket (gráfico → lista) ── */
+.pmal-bucket-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--amber);
+  color: #0B1220;
+  border: none;
+  border-radius: 20px;
+  padding: 3px 10px 3px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .12s, opacity .12s;
+  white-space: nowrap;
+}
+
+.pmal-bucket-chip:hover {
+  background: var(--amber-dark);
+  color: #fff;
+}
+
+/* Container de múltiplos chips de bucket */
+.pmal-bucket-chips {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+/* Botão "Limpar" ao lado dos chips */
+.pmal-bucket-clear {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color .12s, color .12s;
+}
+
+.pmal-bucket-clear:hover {
+  border-color: #adb5c4;
+  color: var(--text);
+}
+
+/* ── Legenda do gráfico de barras ── */
+.pmal-chart-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.pmal-chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.pmal-chart-legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}

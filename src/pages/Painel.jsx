@@ -24,6 +24,7 @@ export default function Painel() {
   const [activeView, setActiveView]       = useState(defaultView);
   const [busca, setBusca]                 = useState('');
   const [filtroStatus, setFiltroStatus]   = useState('todos');
+  const [filtroTipoEquipe, setFiltroTipoEquipe] = useState('todos');
   const [modalAberto, setModalAberto]     = useState(false);
   const [ocorrenciaSelecionada, setOcorrenciaSelecionada] = useState(null);
 
@@ -50,24 +51,30 @@ export default function Painel() {
       lista = lista.filter((o) => o.status === filtroStatus);
     }
 
+    if (filtroTipoEquipe !== 'todos') {
+      lista = lista.filter((o) => o.tipo_equipe === filtroTipoEquipe);
+    }
+
     if (busca.trim()) {
       const q = busca.toLowerCase();
       lista = lista.filter(
         (o) =>
           o.numero_servico?.toLowerCase().includes(q) ||
           o.csi?.toLowerCase().includes(q) ||
-          o.equipe?.toLowerCase().includes(q)
+          o.equipe?.toLowerCase().includes(q) ||
+          o.tipo_equipe?.toLowerCase().includes(q)
       );
     }
 
     return lista;
-  }, [listaBase, filtroStatus, busca]);
+  }, [listaBase, filtroStatus, filtroTipoEquipe, busca]);
 
   // ── Handlers ─────────────────────────────────────────────────────────
   const handleNavigate = (id) => {
     setActiveView(id);
     setBusca('');
     setFiltroStatus('todos');
+    setFiltroTipoEquipe('todos');
   };
 
   // Chamado pelo ModalDetalheOcorrencia após aprovar/reprovar
@@ -84,6 +91,7 @@ export default function Painel() {
   const filtroLabel = [
     meta.title,
     filtroStatus !== 'todos' ? `status: ${filtroStatus.replace('_', ' ')}` : null,
+    filtroTipoEquipe !== 'todos' ? `equipe: ${filtroTipoEquipe}` : null,
     busca.trim() ? `busca: "${busca.trim()}"` : null,
   ]
     .filter(Boolean)
@@ -151,8 +159,10 @@ export default function Painel() {
                 ocorrencias={listaFiltrada}
                 busca={busca}
                 filtroStatus={filtroStatus}
+                filtroTipoEquipe={filtroTipoEquipe}
                 onBuscaChange={(v) => setBusca(v)}
                 onFiltroStatusChange={(v) => setFiltroStatus(v)}
+                onFiltroTipoEquipeChange={(v) => setFiltroTipoEquipe(v)}
                 onRowClick={(o) => setOcorrenciaSelecionada(o)}
               />
             </>

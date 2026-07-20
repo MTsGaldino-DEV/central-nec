@@ -4,19 +4,25 @@ import { uploadFoto } from '../data/fotos';
 import { useAuth } from '../context/AuthContext';
 
 const TIPOS = [
-  'Acidente de trânsito',
   'Avaria em equipamento',
   'Ocorrência com equipe',
-  'Intercorrência de evidencia1',
+  'Intercorrência de Rota',
   'Desvio de procedimento',
   'Reclamação de cliente',
   'Outro',
 ];
 
+const TIPOS_EQUIPE = [
+  'Multifuncional',
+  'Moto',
+];
+
 const SLOTS = [
   { key: 'evidencia1', label: 'Evidência 1' },
   { key: 'evidencia2', label: 'Evidência 2' },
-  { key: 'evidencia2', label: 'Evidência 3' },
+  { key: 'evidencia3', label: 'Evidência 3' },
+  { key: 'evidencia4', label: 'Evidência 4' },
+  { key: 'evidencia5', label: 'Evidência 5' },
 ];
 
 // ── Ícones ────────────────────────────────────────────────────────────────────
@@ -64,14 +70,15 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
     csi: '',
     equipe: '',
     tipo: '',
+    tipo_equipe: '',
     descricao: '',
     data_hora: new Date().toISOString().slice(0, 16),
   });
 
-  // preview local: { evidencia1: dataURL|null, evidencia2: ..., evidencia2: ... }
-  const [previews, setPreviews] = useState({ evidencia1: null, evidencia2: null, evidencia2: null });
+  // preview local
+  const [previews, setPreviews] = useState({ evidencia1: null, evidencia2: null, evidencia3: null, evidencia4: null, evidencia5: null });
   // arquivo selecionado por slot
-  const [arquivos, setArquivos] = useState({ evidencia1: null, evidencia2: null, evidencia2: null });
+  const [arquivos, setArquivos] = useState({ evidencia1: null, evidencia2: null, evidencia3: null, evidencia4: null, evidencia5: null });
 
   const [loading, setLoading] = useState(false); // campos do form
   const [enviando, setEnviando] = useState(false); // upload em progresso
@@ -81,7 +88,9 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
   const inputRefs = {
     evidencia1: useRef(null),
     evidencia2: useRef(null),
-    evidencia2: useRef(null),
+    evidencia3: useRef(null),
+    evidencia4: useRef(null),
+    evidencia5: useRef(null),
   };
 
   const set = (field) => (e) =>
@@ -113,12 +122,12 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
     e.preventDefault();
     setErro('');
 
-    if (!form.numero_servico || !form.csi || !form.equipe || !form.tipo || !form.descricao) {
+    if (!form.csi || !form.equipe || !form.tipo || !form.tipo_equipe || !form.descricao) {
       setErro('Preencha todos os campos obrigatórios.');
       return;
     }
 
-    if (!/^\d{9}$/.test(form.numero_servico)) {
+    if (form.numero_servico && !/^\d{9}$/.test(form.numero_servico)) {
       setErro('O Nº do Serviço deve conter exatamente 9 dígitos.');
       return;
     }
@@ -146,7 +155,7 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
     }
 
     // 2. Upload individual por slot — falhas geram toasts mas não apagam a ocorrência
-    const fotoPaths = { evidencia1: null, evidencia2: null, evidencia2: null };
+    const fotoPaths = { evidencia1: null, evidencia2: null, evidencia3: null, evidencia4: null, evidencia5: null };
 
     const uploadPromises = SLOTS.map(async ({ key }) => {
       const file = arquivos[key];
@@ -205,19 +214,18 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
             {/* Row 1: Nº Serviço + Data/Hora */}
             <div className="field-row">
               <div className="field">
-                <label>Nº do Serviço <span className="req">*</span></label>
+                <label>Nº do Serviço</label>
                 <input
                   type="text"
                   placeholder="ex: 243520170"
                   maxLength={9}
                   pattern="\d{9}"
-                  title="Deve conter exatamente 9 dígitos"
+                  title="Se informado, deve conter exatamente 9 dígitos"
                   value={form.numero_servico}
                   onChange={(e) => {
                     const val = e.target.value.replace(/\D/g, ''); // Apenas números
                     setForm((prev) => ({ ...prev, numero_servico: val }));
                   }}
-                  required
                   disabled={isBlocked}
                 />
               </div>
@@ -260,14 +268,25 @@ export default function ModalNovaOcorrencia({ onClose, onSuccess }) {
             </div>
 
             {/* Tipo */}
-            <div className="field">
-              <label>Tipo de Ocorrência <span className="req">*</span></label>
-              <select value={form.tipo} onChange={set('tipo')} required disabled={isBlocked}>
-                <option value="">Selecione o tipo...</option>
-                {TIPOS.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
+            <div className="field-row">
+              <div className="field">
+                <label>Tipo de Ocorrência <span className="req">*</span></label>
+                <select value={form.tipo} onChange={set('tipo')} required disabled={isBlocked}>
+                  <option value="">Selecione o tipo...</option>
+                  {TIPOS.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="field">
+                <label>Tipo de Equipe <span className="req">*</span></label>
+                <select value={form.tipo_equipe} onChange={set('tipo_equipe')} required disabled={isBlocked}>
+                  <option value="">Selecione...</option>
+                  {TIPOS_EQUIPE.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Descrição */}

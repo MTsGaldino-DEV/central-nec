@@ -2,6 +2,7 @@ const STATUS_LABEL = {
   em_analise: 'Em análise',
   aprovado: 'Aprovado',
   reprovado: 'Reprovado',
+  cancelado: 'Cancelada',
 };
 
 function fmtData(iso) {
@@ -26,9 +27,9 @@ function Badge({ status }) {
 function Relay({ status }) {
   // Node 1 (origin) always amber-lit
   // Node 2 (analysis) blue while em_analise, amber once decided
-  // Node 3 (decision) green or red
+  // Node 3 (decision) green or red, gray if cancelado
   const seg2 = status === 'em_analise' ? 'lit-blue' : 'lit-amber';
-  const seg3 = status === 'aprovado' ? 'lit-green' : status === 'reprovado' ? 'lit-red' : '';
+  const seg3 = status === 'aprovado' ? 'lit-green' : status === 'reprovado' ? 'lit-red' : status === 'cancelado' ? 'lit-gray' : '';
   const wire2 = status !== 'em_analise' ? 'on' : '';
 
   return (
@@ -72,8 +73,10 @@ export default function OcorrenciasList({
   ocorrencias = [],
   busca = '',
   filtroStatus = 'todos',
+  filtroTipoEquipe = 'todos',
   onBuscaChange,
   onFiltroStatusChange,
+  onFiltroTipoEquipeChange,
   onRowClick,
 }) {
   const STATUS_FILTERS = [
@@ -81,6 +84,7 @@ export default function OcorrenciasList({
     { id: 'em_analise', label: 'Em análise' },
     { id: 'aprovado', label: 'Aprovado' },
     { id: 'reprovado', label: 'Reprovado' },
+    { id: 'cancelado', label: 'Cancelada' },
   ];
 
   return (
@@ -92,11 +96,22 @@ export default function OcorrenciasList({
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
           <input
-            placeholder="Buscar por nº do serviço, CSI ou equipe..."
+            placeholder="Buscar por nº do serviço, CSI, equipe..."
             value={busca}
             onChange={(e) => onBuscaChange?.(e.target.value)}
           />
         </div>
+
+        <select 
+           className="chip-filter" 
+           value={filtroTipoEquipe} 
+           onChange={(e) => onFiltroTipoEquipeChange?.(e.target.value)}
+           style={{ margin: '0 8px', background: 'var(--surface-alt)', border: '1px solid var(--border)', color: 'var(--text)', borderRadius: '20px', padding: '6px 14px', outline: 'none', cursor: 'pointer' }}
+        >
+          <option value="todos">Todas as Equipes</option>
+          <option value="Multifuncional">Multifuncional</option>
+          <option value="Moto">Moto</option>
+        </select>
 
         {STATUS_FILTERS.map((f) => (
           <button
@@ -133,7 +148,14 @@ export default function OcorrenciasList({
               <div className="cell-servico mono">{o.numero_servico}</div>
               <div className="cell-desc">
                 <div className="tipo">{o.tipo}</div>
-                <div className="csi">{o.csi}</div>
+                <div className="csi" style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <span>{o.csi}</span>
+                  {o.tipo_equipe && (
+                    <span style={{ fontSize: 10, padding: '2px 6px', background: 'var(--surface-alt)', borderRadius: 4, color: 'var(--text-faint)' }}>
+                      {o.tipo_equipe}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="cell-equipe">{o.equipe}</div>
               <div><Badge status={o.status} /></div>

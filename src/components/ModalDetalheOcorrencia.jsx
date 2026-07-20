@@ -10,6 +10,7 @@ const STATUS_LABEL = {
   em_analise: 'Em análise',
   aprovado: 'Aprovado',
   reprovado: 'Reprovado',
+  cancelado: 'Cancelada',
 };
 
 function fmtData(iso) {
@@ -72,9 +73,11 @@ const IcSpinner = () => (
 // ── Slots de foto ─────────────────────────────────────────────────────────────
 
 const SLOTS = [
-  { key: 'rota', label: 'Foto da Rota' },
-  { key: 'conversa_csi', label: 'Conversa CSI' },
-  { key: 'conversa_equipe', label: 'Conversa Equipe' },
+  { key: 'evidencia1', label: 'Evidência 1' },
+  { key: 'evidencia2', label: 'Evidência 2' },
+  { key: 'evidencia3', label: 'Evidência 3' },
+  { key: 'evidencia4', label: 'Evidência 4' },
+  { key: 'evidencia5', label: 'Evidência 5' },
 ];
 
 // ── Componente principal ──────────────────────────────────────────────────────
@@ -133,7 +136,11 @@ export default function ModalDetalheOcorrencia({ ocorrencia, onClose, onDecisao 
 
   const fotos = ocorrencia.fotos ?? {};
   const podaDecidir = role === 'supervisor' && ocorrencia.status === 'em_analise';
-  const jaDecidida = ocorrencia.status !== 'em_analise';
+  const jaDecidida = ocorrencia.status === 'aprovado' || ocorrencia.status === 'reprovado' || ocorrencia.status === 'cancelado';
+
+  const despachantePodeCancelar = role === 'despachante' && ocorrencia.status === 'em_analise';
+  const supervisorPodeCancelar = role === 'supervisor' && ocorrencia.status !== 'cancelado';
+  const supervisorPodeVoltar = role === 'supervisor' && ocorrencia.status !== 'em_analise';
 
   // ── Handlers de decisão ───────────────────────────────────────────────────
   const handleDecisao = async (novoStatus) => {
@@ -152,10 +159,11 @@ export default function ModalDetalheOcorrencia({ ocorrencia, onClose, onDecisao 
         { id: usuarioAtual.id, nome: usuarioAtual.nome }
       );
 
-      const msgSucesso =
-        novoStatus === 'aprovado'
-          ? 'Ocorrência aprovada.'
-          : 'Ocorrência reprovada e devolvida ao despachante.';
+      let msgSucesso = 'Ocorrência atualizada com sucesso.';
+      if (novoStatus === 'aprovado') msgSucesso = 'Ocorrência aprovada.';
+      if (novoStatus === 'reprovado') msgSucesso = 'Ocorrência reprovada e devolvida ao despachante.';
+      if (novoStatus === 'cancelado') msgSucesso = 'Ocorrência cancelada.';
+      if (novoStatus === 'em_analise') msgSucesso = 'Ocorrência voltou para análise.';
 
       // Notifica o pai com a mensagem — o toast aparece no Painel, após o modal fechar
       onDecisao?.(atualizada, msgSucesso);
@@ -222,6 +230,7 @@ export default function ModalDetalheOcorrencia({ ocorrencia, onClose, onDecisao 
             {/* Grid de detalhes */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 24px', marginBottom: 16 }}>
               <Detail label="Tipo de ocorrência" value={ocorrencia.tipo} />
+              <Detail label="Tipo de Equipe" value={ocorrencia.tipo_equipe} />
               <Detail label="Equipe" value={ocorrencia.equipe} />
               <Detail label="CSI" value={ocorrencia.csi} />
             </div>
@@ -313,7 +322,19 @@ export default function ModalDetalheOcorrencia({ ocorrencia, onClose, onDecisao 
           </div>
 
           {/* Footer */}
-          <div className="modal-foot">
+          <div className="modal-foot" style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: 10 }}>
+              {(despachantePodeCancelar || supervisorPodeCancelar) && (
+                <button type="button" className="btn btn-outline" style={{ borderColor: 'rgba(220,38,38,0.5)', color: '#f87171' }} onClick={() => handleDecisao('cancelado')} disabled={salvando}>
+                  Cancelar Ocorrência
+                </button>
+              )}
+              {supervisorPodeVoltar && (
+                <button type="button" className="btn btn-outline" onClick={() => handleDecisao('em_analise')} disabled={salvando}>
+                  Voltar para Análise
+                </button>
+              )}
+            </div>
             <button type="button" className="btn btn-outline" onClick={onClose} disabled={salvando}>
               Fechar
             </button>
@@ -433,6 +454,22 @@ function DecisionForm({ observacao, onObservacaoChange, onDecisao, salvando }) {
  * Exibe os dados reais de uma decisão já tomada pelo supervisor.
  */
 function DecisionResult({ ocorrencia }) {
+  if (ocorrencia.status === 'cancelado') {
+    return (
+      <div style={{ background: 'rgba(100,100,100,0.08)', border: '1px solid rgba(100,100,100,0.3)', borderRadius: 10, padding: '14px 16px', marginBottom: 16 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+          ∅ Cancelada
+        </div>
+        {ocorrencia.supervisor_nome && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 24px' }}>
+            <Detail label="Cancelado por" value={ocorrencia.supervisor_nome} />
+            <Detail label="Decidido em" value={fmtData(ocorrencia.decidido_em)} />
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const corStatus = ocorrencia.status === 'aprovado'
     ? { bg: 'rgba(22,163,74,0.08)', border: 'rgba(22,163,74,0.3)', label: '#4ade80' }
     : { bg: 'rgba(220,38,38,0.08)', border: 'rgba(220,38,38,0.3)', label: '#f87171' };

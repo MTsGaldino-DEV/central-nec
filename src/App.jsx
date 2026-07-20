@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Painel from './pages/Painel';
 import GestaoUsuarios from './pages/GestaoUsuarios';
+import PainelPMAL from './pages/PainelPMAL';
 
 export default function App() {
   return (
@@ -24,6 +25,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <GestaoUsuarios />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/indicadores/pmal"
+            element={
+              <ProtectedRoute>
+                <PainelPMAL />
               </ProtectedRoute>
             }
           />
