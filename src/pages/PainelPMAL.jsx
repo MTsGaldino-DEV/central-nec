@@ -20,18 +20,18 @@ import {
 // Domínio (espelhos do protótipo — sem mock)
 // ---------------------------------------------------------------------------
 const PROCESSO_GROUPS = {
-  'Ligação Nova':      ['OSLN', 'OSLQ', 'OSLI', 'OSLA'],
-  'Restabelecimento':  ['OSRL', 'OSMR', 'OSIN'],
-  'Alteração de Carga':['OSAC', 'OSAA', 'OSA1', 'OSA2', 'OSAQ'],
-  'Medição':           ['OSML', 'OSIM', 'OSM1', 'OSTA'],
-  'Vistoria':          ['RC79', 'OSVQ'],
+  'Ligação Nova': ['OSLN', 'OSLQ', 'OSLI', 'OSLA'],
+  'Restabelecimento': ['OSRL', 'OSMR', 'OSIN'],
+  'Alteração de Carga': ['OSAC', 'OSAA', 'OSA1', 'OSA2', 'OSAQ'],
+  'Medição': ['OSML', 'OSIM', 'OSM1', 'OSTA'],
+  'Vistoria': ['RC79', 'OSVQ'],
 };
 
 const SITUACOES = {
-  P: { label: 'Pendente',   color: '#F5A524' },
-  D: { label: 'Designado',  color: '#2E90FA' },
-  A: { label: 'Acionado',   color: '#a855f7' },
-  E: { label: 'Execução',   color: '#0B1220' },
+  P: { label: 'Pendente', color: '#F5A524' },
+  D: { label: 'Designado', color: '#2E90FA' },
+  A: { label: 'Acionado', color: '#a855f7' },
+  E: { label: 'Execução', color: '#0B1220' },
   F: { label: 'Finalizado', color: '#98A2B3' },
 };
 
@@ -40,8 +40,8 @@ const SITUACOES = {
  * Vencido < Vence hoje < Vence em 2 dias < Vence em N dias
  */
 function bucketSortKey(label) {
-  if (label === 'Vencido')     return -1;
-  if (label === 'Vence hoje')  return 1;
+  if (label === 'Vencido') return -1;
+  if (label === 'Vence hoje') return 1;
   const m = label.match(/(\d+)/);
   return m ? parseInt(m[1], 10) : 999;
 }
@@ -264,17 +264,17 @@ export default function PainelPMAL() {
 
   // Filtros
   const [activeSituacoes, setActiveSituacoes] = useState(new Set(['P', 'D', 'A', 'E', 'F']));
-  const [activePostos, setActivePostos]       = useState(new Set());
-  const [localidade, setLocalidade]           = useState('TODAS');
-  const [processo, setProcesso]               = useState('TODOS');
-  const [area, setArea]                       = useState('TODAS');
-  const [busca, setBusca]                     = useState('');
+  const [activePostos, setActivePostos] = useState(new Set());
+  const [localidade, setLocalidade] = useState('TODAS');
+  const [processo, setProcesso] = useState('TODOS');
+  const [area, setArea] = useState('TODAS');
+  const [busca, setBusca] = useState('');
 
-  const [selectedRow, setSelectedRow]         = useState(null);
-  const [annotations, setAnnotations]         = useState({});
-  const [copiedGroup, setCopiedGroup]         = useState(null);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [annotations, setAnnotations] = useState({});
+  const [copiedGroup, setCopiedGroup] = useState(null);
   // Multi-seleção de buckets via clique no gráfico → filtra a lista
-  const [activeBuckets, setActiveBuckets]     = useState(new Set());
+  const [activeBuckets, setActiveBuckets] = useState(new Set());
 
   const toggleSituacao = (code) => {
     setActiveSituacoes((prev) => {
@@ -333,7 +333,7 @@ export default function PainelPMAL() {
     activeBuckets.size === 0
       ? baseFiltered
       : baseFiltered.filter((d) => activeBuckets.has(d.bucket))
-  , [baseFiltered, activeBuckets]);
+    , [baseFiltered, activeBuckets]);
 
   const vencidosCount = useMemo(() =>
     baseFiltered.filter((d) => d.vencido && d.situacao !== 'F').length, [baseFiltered]);
@@ -391,13 +391,13 @@ export default function PainelPMAL() {
 
   const copyGroup = (group, idx) => {
     const text = group.itens.map((i) => i.numeroServico).join(',');
-    navigator.clipboard?.writeText(text).catch(() => {});
+    navigator.clipboard?.writeText(text).catch(() => { });
     setCopiedGroup(idx);
     setTimeout(() => setCopiedGroup(null), 1500);
   };
 
   const donutOrder = ['P', 'D', 'A', 'E', 'F'];
-  const donutData  = donutOrder.map((k) => ({
+  const donutData = donutOrder.map((k) => ({
     key: k, name: SITUACOES[k].label, value: situacaoCounts[k], color: SITUACOES[k].color,
   }));
 
@@ -410,15 +410,15 @@ export default function PainelPMAL() {
         role={role}
         ocorrencias={[]}
         activeView="pmal"
-        onNavigate={() => {}}
-        onNovaOcorrencia={() => {}}
+        onNavigate={() => { }}
+        onNovaOcorrencia={() => { }}
         pmalCount={data.length}
       />
 
       <div className="main">
         <Topbar
           title="Painel PMAL"
-          subtitle="Planejadas de Manutenção — NEC"
+          subtitle="PRAZO MÉDIO DE ATENDIMENTO DE LIGAÇÃO — NEC"
           ocorrenciasFiltradas={[]}
           filtroLabel="PMAL"
         />
@@ -438,7 +438,7 @@ export default function PainelPMAL() {
           <div className="pmal-header">
             <div>
               <div className="pmal-header-tag">
-                <Zap size={14} /> PMAL · Planejadas de Manutenção
+                <Zap size={14} /> PMAL · PRAZO MÉDIO DE ATENDIMENTO DE LIGAÇÃO
               </div>
               <h1 className="pmal-header-title">Painel do Operador</h1>
             </div>
@@ -466,7 +466,7 @@ export default function PainelPMAL() {
           {loading && data.length === 0 ? (
             <div className="pmal-skeleton-wrap">
               <div className="pmal-skeleton-kpis">
-                {[1,2,3,4].map((i) => (
+                {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="skeleton-stat-card">
                     <div className="skeleton sk-num" />
                     <div className="skeleton sk-lbl" />
@@ -478,9 +478,9 @@ export default function PainelPMAL() {
                   <div>Nº Serviço</div><div>Tipo</div><div>Situação</div>
                   <div>Município</div><div>Turma</div><div>Restante</div>
                 </div>
-                {[1,2,3,4,5].map((i) => (
+                {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="skeleton-row">
-                    {[1,2,3,4,5,6].map((j) => (
+                    {[1, 2, 3, 4, 5, 6].map((j) => (
                       <div key={j} className="skeleton sk-cell" />
                     ))}
                   </div>
@@ -491,10 +491,10 @@ export default function PainelPMAL() {
             <>
               {/* KPIs */}
               <div className="pmal-kpis">
-                <KpiCard icon={Zap}          label="Total selecionado"  value={totalSelecionado} accentClass="pmal-kpi-navy" />
-                <KpiCard icon={AlertTriangle} label="Vencidos"           value={vencidosCount}    accentClass="pmal-kpi-red" />
-                <KpiCard icon={CheckCircle2} label="Dentro do prazo"    value={`${noPrazoPct}%`} accentClass="pmal-kpi-green" />
-                <KpiCard icon={Clock}        label="Prazos vigentes"    value="72h / 120h"       accentClass="pmal-kpi-amber" />
+                <KpiCard icon={Zap} label="Total selecionado" value={totalSelecionado} accentClass="pmal-kpi-navy" />
+                <KpiCard icon={AlertTriangle} label="Vencidos" value={vencidosCount} accentClass="pmal-kpi-red" />
+                <KpiCard icon={CheckCircle2} label="Dentro do prazo" value={`${noPrazoPct}%`} accentClass="pmal-kpi-green" />
+                <KpiCard icon={Clock} label="Prazos vigentes" value="72h / 120h" accentClass="pmal-kpi-amber" />
               </div>
 
               {/* Situação donut + Postos */}

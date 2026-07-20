@@ -91,11 +91,10 @@ create policy "ocorrencias_update_supervisor"
   on public.ocorrencias for update
   to authenticated
   using (
-    status = 'em_analise'
-    and (select role from public.usuarios where id = auth.uid()) = 'supervisor'
+    (select role from public.usuarios where id = auth.uid()) = 'supervisor'
   )
   with check (
-    -- condição de aprovação/reprovação (ver SQL original da Etapa 4)
+    (select role from public.usuarios where id = auth.uid()) = 'supervisor'
   );
 
 create policy "ocorrencias_update_despachante_fotos"
@@ -107,7 +106,7 @@ create policy "ocorrencias_update_despachante_fotos"
   )
   with check (
     despachante_id = auth.uid()
-    and status = 'em_analise'
+    and (status = 'em_analise' or status = 'cancelado')
   );
 ```
 

@@ -40,7 +40,7 @@ const IcBarChart = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="18" y1="20" x2="18" y2="10" />
     <line x1="12" y1="20" x2="12" y2="4" />
-    <line x1="6"  y1="20" x2="6"  y2="14" />
+    <line x1="6" y1="20" x2="6" y2="14" />
   </svg>
 );
 // Seta para grupos colapsáveis
@@ -77,10 +77,10 @@ export default function Sidebar({
   onNovaOcorrencia,
   pmalCount = 0,
 }) {
-  const navigate  = useNavigate();
-  const location  = useLocation();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const total    = ocorrencias.length;
+  const total = ocorrencias.length;
   const pendentes = ocorrencias.filter((o) => o.status === 'em_analise').length;
 
   // Grupos abertos por padrão
@@ -105,7 +105,7 @@ export default function Sidebar({
     },
     ...(role === 'supervisor' ? [
       { id: 'pendentes', label: 'Aprovações Pendentes', icon: <IcInbox />, count: pendentes },
-      { id: 'todas',     label: 'Todas as Ocorrências', icon: <IcLayers />, count: total },
+      { id: 'todas', label: 'Todas as Ocorrências', icon: <IcLayers />, count: total },
     ] : []),
     { id: 'nova', label: 'Nova Ocorrência', icon: <IcPlus />, isAction: true },
     ...(role === 'supervisor' ? [
@@ -160,8 +160,8 @@ export default function Sidebar({
           </svg>
         </div>
         <div className="brand-text">
-          <div className="l1">Central de Ocorrências</div>
-          <div className="l2">CSC · Despacho de Campo</div>
+          <div className="l1">Central NEC</div>
+          <div className="l2">NEC · Despacho de Campo</div>
         </div>
       </div>
 
