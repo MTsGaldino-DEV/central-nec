@@ -91,4 +91,3 @@ export async function editarOcorrencia(id, campos) {
   if (error) throw new Error('Falha ao editar ocorrência: ' + error.message);
   return data;
 }
-

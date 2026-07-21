@@ -21,7 +21,7 @@ const EP_TURMA       = `${BASE}/turma/${CNPJ}/${COD_LOCAL}/${MATRICULA}`;
 // ---------------------------------------------------------------------------
 export const PMAL_TYPES = [
   'OSLN', 'OSLQ', 'OSRL', 'OSAA', 'OSML', 'OSAC', 'OSMR',
-  'RC79', 'OSLA', 'OSLI', 'OSA1', 'OSIM', 'OSA2', 'OSM1',
+  'RC79', 'RC87', 'OSLA', 'OSLI', 'OSA1', 'OSIM', 'OSA2', 'OSM1',
   'OSTA', 'OSAQ', 'OSIN', 'OSVQ',
 ];
 const PMAL_SET = new Set(PMAL_TYPES);
@@ -35,6 +35,7 @@ export const PMAL_TYPE_MAP = {
   OSAC: 'Alteração de carga',
   OSMR: 'Restabelecer com instalação medidor',
   RC79: 'Vistoria em quadro de medição coletivo',
+  RC87: 'Marcar local de entrada',
   OSLA: 'Lig. nova p/acessante micro/mini geração',
   OSLI: 'Ligar novo consumidor - medição indireta',
   OSA1: 'Alteração de carga em instalação cortada',
@@ -189,8 +190,8 @@ export function joinPmalData(notaArray, servicoArray, turmaArray) {
 
   const turmaMap = new Map();
   (turmaArray || []).forEach((t) => {
-    if (t.numeroVeiculo != null) {
-      turmaMap.set(String(t.numeroVeiculo), t);
+    if (t.numeroServico != null) {
+      turmaMap.set(String(t.numeroServico), t);
     }
   });
 
@@ -201,7 +202,7 @@ export function joinPmalData(notaArray, servicoArray, turmaArray) {
     if (!PMAL_SET.has(row.tipoServico)) return;
 
     const notaRow = notaMap.get(String(row.numeroServico));
-    const turmaRow = row.numeroVeiculo != null ? turmaMap.get(String(row.numeroVeiculo)) : null;
+    const turmaRow = turmaMap.get(String(row.numeroServico)) || null;
 
     // prazoAtual  = prazo total permitido (ex: "120:00")
     // tempoPendencia = tempo já consumido  (ex: "112:43")
@@ -239,12 +240,14 @@ export function joinPmalData(notaArray, servicoArray, turmaArray) {
       remainingMin,
       vencido,
       bucket:                bucketFromRemaining(remainingMin / 60),
+      numeroVeiculo:          row.numeroVeiculo || null,
       eletricista:           turmaRow?.nomeEletricista || null,
       placa:                 turmaRow?.placa || null,
       quantidadeReincidencia: parseInt(row.quantidadeReincidencia, 10) || 0,
       alimentador:           row.alimentador || '',
       numeroDispositivo:     row.numeroDispositivo || '',
       disjuntor,
+      complemento:           notaRow?.complemento || row.complemento || '',
       latitude:              row.latitude  ? parseFloat(row.latitude)  : null,
       longitude:             row.longitude ? parseFloat(row.longitude) : null,
     });

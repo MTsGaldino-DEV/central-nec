@@ -1929,15 +1929,35 @@ input, select, textarea {
 
 .pmal-table-row {
   border-top: 1px solid var(--border);
-  cursor: pointer;
   transition: background .1s;
 }
 
 .pmal-table-row:hover { background: #FAFBFC; }
 
+.pmal-eye-btn {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: background .12s, color .12s, border-color .12s;
+  cursor: pointer;
+}
+
+.pmal-eye-btn:hover {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
 .pmal-table td {
   padding: 10px 16px;
 }
+
 
 .pmal-td-mono {
   font-family: 'IBM Plex Mono', monospace;

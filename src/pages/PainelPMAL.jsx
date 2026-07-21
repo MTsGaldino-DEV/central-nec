@@ -6,7 +6,8 @@ import {
 import {
   RefreshCw, MapPin, Clock, AlertTriangle, Search, ChevronDown,
   CheckCircle2, X, Navigation, Copy, Check, Zap, Layers,
-  DollarSign, Users, ClipboardList,
+  DollarSign, Users, ClipboardList, Eye, Download,
+  ChevronsUpDown, ChevronUp, ChevronDown as ChevronDownSort,
 } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
@@ -165,7 +166,9 @@ function ServiceModal({ row, onClose, annotation, onSaveAnnotation }) {
             <div className="detail-item">
               <div className="k">Turma designada</div>
               <div className="v">
-                {row.eletricista ? `${row.eletricista} · ${row.placa}` : '— não designada'}
+                {row.numeroVeiculo
+                  ? `Equipe ${row.numeroVeiculo}${row.eletricista ? ` · ${row.eletricista}` : ''}${row.placa ? ` · ${row.placa}` : ''}`
+                  : '— não designada'}
               </div>
             </div>
             <div className="detail-item">
@@ -211,6 +214,12 @@ function ServiceModal({ row, onClose, annotation, onSaveAnnotation }) {
                 Indisponível — aguardando integração desse dado
               </div>
             </div>
+            {row.complemento && (
+              <div className="detail-item detail-full">
+                <div className="k">Complemento</div>
+                <div className="v">{row.complemento}</div>
+              </div>
+            )}
           </div>
 
           {/* Mapa */}
@@ -275,6 +284,54 @@ export default function PainelPMAL() {
   const [copiedGroup, setCopiedGroup] = useState(null);
   // Multi-seleção de buckets via clique no gráfico → filtra a lista
   const [activeBuckets, setActiveBuckets] = useState(new Set());
+  // Ordenação de colunas
+  const [sortConfig, setSortConfig] = useState({ key: null, dir: 'asc' });
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => ({
+      key,
+      dir: prev.key === key && prev.dir === 'asc' ? 'desc' : 'asc',
+    }));
+  };
+
+  const SortIcon = ({ col }) => {
+    if (sortConfig.key !== col) return <ChevronsUpDown size={11} style={{ opacity: 0.4 }} />;
+    return sortConfig.dir === 'asc'
+      ? <ChevronUp size={11} />
+      : <ChevronDownSort size={11} />;
+  };
+
+  const exportToExcel = () => {
+    const rows = sortedList.map((d) => ({
+      'Nº Serviço': d.numeroServico,
+      'Tipo': d.tipoServico,
+      'Descrição': d.tipoDescricao,
+      'Situação': SITUACOES[d.situacao]?.label || d.situacao,
+      'Município': d.municipio,
+      'Bairro': d.bairro,
+      'Turma': d.numeroVeiculo || '',
+      'Eletricista': d.eletricista || '',
+      'Placa': d.placa || '',
+      'Tempo Pendência': hhmm(d.tempoPendenciaMin),
+      'Restante': hhmm(d.remainingMin),
+      'Prazo': d.vencido ? 'Vencido' : d.bucket,
+      'Complemento': d.complemento || '',
+      'Endereço': `${d.endereco}, ${d.numero}`,
+      '?rea': d.tipoArea === 'U' ? 'Urbana' : 'Rural',
+      'Latitude': d.latitude || '',
+      'Longitude': d.longitude || '',
+    }));
+
+    const header = Object.keys(rows[0] || {});
+    const csvRows = [header.join(';'), ...rows.map((r) => header.map((h) => `"${String(r[h] || '').replace(/"/g, '""')}"`).join(';'))];
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pmal_servicos_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const toggleSituacao = (code) => {
     setActiveSituacoes((prev) => {
@@ -400,6 +457,22 @@ export default function PainelPMAL() {
   const donutData = donutOrder.map((k) => ({
     key: k, name: SITUACOES[k].label, value: situacaoCounts[k], color: SITUACOES[k].color,
   }));
+
+  // Lista com ordenação aplicada
+  const sortedList = useMemo(() => {
+    if (!sortConfig.key) return listFiltered;
+    return [...listFiltered].sort((a, b) => {
+      let va = a[sortConfig.key];
+      let vb = b[sortConfig.key];
+      if (typeof va === 'string') va = va.toLowerCase();
+      if (typeof vb === 'string') vb = vb.toLowerCase();
+      if (va == null) return 1;
+      if (vb == null) return -1;
+      if (va < vb) return sortConfig.dir === 'asc' ? -1 : 1;
+      if (va > vb) return sortConfig.dir === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [listFiltered, sortConfig]);
 
   // ---------------------------------------------------------------------------
   // Render
@@ -837,29 +910,61 @@ export default function PainelPMAL() {
                       </span>
                     )}
                   </span>
-                  <span className="pmal-card-hint">{listFiltered.length} serviço(s)</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span className="pmal-card-hint">{sortedList.length} serviço(s)</span>
+                    <button
+                      className="btn btn-outline"
+                      style={{ fontSize: 12, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
+                      onClick={exportToExcel}
+                      disabled={sortedList.length === 0}
+                      title="Exportar lista filtrada para CSV/Excel"
+                    >
+                      <Download size={13} /> Exportar Excel
+                    </button>
+                  </div>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="pmal-table">
                     <thead>
                       <tr>
-                        <th>Nº Serviço</th>
-                        <th>Tipo</th>
-                        <th>Situação</th>
-                        <th>Município</th>
-                        <th>Bairro</th>
-                        <th>Turma</th>
-                        <th>Restante</th>
-                        <th>Prazo</th>
+                        <th style={{ width: 40 }}></th>
+                        {[
+                          { key: 'numeroServico', label: 'Nº Serviço' },
+                          { key: 'tipoServico', label: 'Tipo' },
+                          { key: 'situacao', label: 'Situação' },
+                          { key: 'municipio', label: 'Município' },
+                          { key: 'bairro', label: 'Bairro' },
+                          { key: 'numeroVeiculo', label: 'Turma' },
+                          { key: 'remainingMin', label: 'Restante' },
+                          { key: 'bucket', label: 'Prazo' },
+                        ].map(({ key, label }) => (
+                          <th
+                            key={key}
+                            onClick={() => handleSort(key)}
+                            style={{ cursor: 'pointer', userSelect: 'none', whiteSpace: 'nowrap' }}
+                          >
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                              {label} <SortIcon col={key} />
+                            </span>
+                          </th>
+                        ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {listFiltered.slice(0, 100).map((d) => (
+                      {sortedList.slice(0, 100).map((d) => (
                         <tr
                           key={d.numeroServico}
-                          onClick={() => setSelectedRow(d)}
                           className="pmal-table-row"
                         >
+                          <td style={{ padding: '0 8px', textAlign: 'center' }}>
+                            <button
+                              className="pmal-eye-btn"
+                              title="Ver detalhes"
+                              onClick={(e) => { e.stopPropagation(); setSelectedRow(d); }}
+                            >
+                              <Eye size={14} />
+                            </button>
+                          </td>
                           <td className="pmal-td-mono">{d.numeroServico}</td>
                           <td>
                             <span className="pmal-tipo-badge" title={d.tipoDescricao}>{d.tipoServico}</span>
@@ -867,7 +972,7 @@ export default function PainelPMAL() {
                           <td><SituacaoBadge code={d.situacao} /></td>
                           <td className="pmal-td-muted">{d.municipio}</td>
                           <td className="pmal-td-muted">{d.bairro}</td>
-                          <td className="pmal-td-muted">{d.eletricista || <span className="pmal-dash">—</span>}</td>
+                          <td className="pmal-td-muted">{d.numeroVeiculo || <span className="pmal-dash">—</span>}</td>
                           <td className={`pmal-td-mono${d.remainingMin < 0 ? ' pmal-vencido' : ''}`}>
                             {hhmm(d.remainingMin)}
                           </td>
@@ -883,12 +988,12 @@ export default function PainelPMAL() {
                     </tbody>
                   </table>
                 </div>
-                {listFiltered.length > 100 && (
+                {sortedList.length > 100 && (
                   <div className="pmal-table-footer">
-                    Mostrando 100 de {listFiltered.length} — adicionar paginação se necessário
+                    Mostrando 100 de {sortedList.length} — adicionar paginação se necessário
                   </div>
                 )}
-                {listFiltered.length === 0 && !loading && (
+                {sortedList.length === 0 && !loading && (
                   <div className="pmal-table-empty">
                     Nenhum serviço encontrado com os filtros atuais.
                   </div>
