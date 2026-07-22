@@ -9,12 +9,12 @@ const GDIS_BASE_URL = import.meta.env.VITE_GDIS_BASE_URL || '/api/gdis';
 // O proxy remove /api/gdis, então precisamos incluir o /WebConsultaGdis aqui
 const BASE = `${GDIS_BASE_URL}/WebConsultaGdis/ws/contratada`;
 const CNPJ = '21066139000108';
-const COD_LOCAL = '3944471200017';
+const INSC_ESTAD = '3944471200017';
 const MATRICULA = 'e252135';
 
-const EP_NOTASERVICO = `${BASE}/notaservico/${CNPJ}/${COD_LOCAL}/${MATRICULA}`;
-const EP_SERVICO = `${BASE}/servico/${CNPJ}/${COD_LOCAL}/${MATRICULA}`;
-const EP_TURMA = `${BASE}/turma/${CNPJ}/${COD_LOCAL}/${MATRICULA}`;
+const EP_NOTASERVICO = `${BASE}/notaservico/${CNPJ}/${INSC_ESTAD}/${MATRICULA}`;
+const EP_SERVICO = `${BASE}/servico/${CNPJ}/${INSC_ESTAD}/${MATRICULA}`;
+const EP_TURMA = `${BASE}/turma/${CNPJ}/${INSC_ESTAD}/${MATRICULA}`;
 
 // ---------------------------------------------------------------------------
 // Tipos PMAL (espelho do protótipo)
