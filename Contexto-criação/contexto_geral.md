@@ -39,7 +39,29 @@ O arquivo `src/data/pmalService.js` cuida dessas buscas utilizando os seguintes 
 
 A função `joinPmalData()` varre todos os arrays que retornam destes links e realiza um "join em memória", agrupando-os por `numeroServico` e `numeroVeiculo`.
 
-## 4. Estrutura de Funções Frontend e Dicionário de Strings
+## 4. O Painel PMAL (Aba de Indicadores)
+
+O **Painel PMAL** é uma área exclusiva para acompanhamento em tempo real do Indicador operacional da CEMIG para contratada "NEC", disponível para o nível de acesso **Supervisor** até o momento, por estar em fase de teste. Ele serve para acompanhamento de serviços comerciais de toda a localidade de atendimento da UEN211 ((ligações de energia, vistorias, etc.) e permite ter uma visão geral e atualizada para tomar ações corretivas antes de estourar os prazos das metas regulatórias.
+
+### Principais Funcionalidades do Painel:
+- **KPIs Resumidos:** Exibe cards com o total de serviços ativos, quantidade de serviços vencidos (fora do prazo) e o percentual geral de conformidade (serviços no prazo).
+- **Filtros Dinâmicos:**
+  - **Situação:** Filtra por Pendente (P), Designado (D), Acionado (A), Execução (E) ou Finalizado (F).
+  - **Localidades (Dropdown com Busca):** Menu de seleção múltipla com barra de pesquisa textual. As cidades estão agrupadas por seus respectivos **Postos de Supervisão** (ex: Posto 1 — Pedro, Posto 2 — Elton, etc.).
+  - **Processo, Área (Urbano/Rural) e Busca Textual:** Filtros adicionais para refinar a busca de notas e serviços.
+- **Gráficos e Interatividade:**
+  - Gráfico Donut para distribuição por situação (P, D, A, E, F).
+  - Gráfico de Barras agrupando os serviços por faixas de prazo de vencimento (vence hoje, vence em 2 dias, etc.). Clicar em uma barra do gráfico aplica um filtro direto na tabela inferior para focar nos serviços daquele bucket específico.
+- **Listas Auxiliares de Apoio Operacional:**
+  - **Material Pesado:** Exibe serviços que possuem disjuntores com carga igual ou superior a 100A. Os cards mostram o tipo de serviço, número, fases e amperagem (no formato `{fases}x{carga}A`, ex: `2x100A`), status abreviado (badge circular), localidade resumida e prazo de vencimento.
+  - **Serviços em Conjunto:** Agrupa automaticamente serviços que possuem o mesmo endereço e município. Permite copiar a lista de números de serviço de uma única vez para agilizar o despacho conjunto da equipe. Por regra de negócio, esta listagem considera **apenas serviços da zona urbana**.
+- **Tabela de Serviços com Recursos:**
+  - **Ordenação Dinâmica:** Ordena qualquer coluna (Crescente/Decrescente) clicando em seu título. A ordenação pode ser limpa a qualquer momento pelo botão "Limpar ordem".
+  - **Paginação Real:** Mostra a lista de serviços de 100 em 100 com botões de navegação (Anterior/Próxima) e contador do intervalo de visualização para melhor performance.
+  - **Exportação para Excel:** Gera um arquivo de planilha no formato CSV com todos os dados e filtros atualmente aplicados na listagem de serviços.
+  - **Modal de Detalhes:** O clique no ícone do olho na lateral esquerda da linha abre um modal completo com complemento da nota, visualização de equipe, tempo detalhado de pendência, botão para abrir localização no Google Maps e campo para salvar anotações personalizadas da sessão.
+
+## 5. Estrutura de Funções Frontend e Dicionário de Strings
 
 Diversas partes da interface usam constantes de string que podem ser alteradas sem envolver lógica pesada. Se houver necessidade de expandir o sistema, procure as seguintes constantes:
 

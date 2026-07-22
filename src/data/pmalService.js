@@ -13,8 +13,8 @@ const COD_LOCAL = '3944471200017';
 const MATRICULA = 'e252135';
 
 const EP_NOTASERVICO = `${BASE}/notaservico/${CNPJ}/${COD_LOCAL}/${MATRICULA}`;
-const EP_SERVICO     = `${BASE}/servico/${CNPJ}/${COD_LOCAL}/${MATRICULA}`;
-const EP_TURMA       = `${BASE}/turma/${CNPJ}/${COD_LOCAL}/${MATRICULA}`;
+const EP_SERVICO = `${BASE}/servico/${CNPJ}/${COD_LOCAL}/${MATRICULA}`;
+const EP_TURMA = `${BASE}/turma/${CNPJ}/${COD_LOCAL}/${MATRICULA}`;
 
 // ---------------------------------------------------------------------------
 // Tipos PMAL (espelho do protótipo)
@@ -52,24 +52,25 @@ export const PMAL_TYPE_MAP = {
 // Municípios (local → nome)
 // ---------------------------------------------------------------------------
 export const MUNICIPIOS = [
-  { local: '4164', nome: 'AGUA BOA' },       { local: '4162', nome: 'AIMORES' },
-  { local: '4106', nome: 'ALPERCATA' },       { local: '4238', nome: 'ALVARENGA' },
-  { local: '4351', nome: 'BARRA MANSA' },     { local: '4143', nome: 'CANTAGALO' },
+  { local: '4164', nome: 'AGUA BOA' }, { local: '4162', nome: 'AIMORES' },
+  { local: '12', nome: 'CAPITÃO ANDRADE' },
+  { local: '4106', nome: 'ALPERCATA' }, { local: '4238', nome: 'ALVARENGA' },
+  { local: '4351', nome: 'BARRA MANSA' }, { local: '4143', nome: 'CANTAGALO' },
   { local: '0012', nome: 'CAPITAO ANDRADE' }, { local: '4190', nome: 'CENTRAL DE MINAS' },
-  { local: '4165', nome: 'COLUNA' },          { local: '4102', nome: 'CONSELHEIRO PENA' },
-  { local: '4108', nome: 'COROACI' },         { local: '4154', nome: 'CUPARAQUE' },
+  { local: '4165', nome: 'COLUNA' }, { local: '4102', nome: 'CONSELHEIRO PENA' },
+  { local: '4108', nome: 'COROACI' }, { local: '4154', nome: 'CUPARAQUE' },
   { local: '4105', nome: 'DIVINO LARANJEIRAS' }, { local: '4168', nome: 'ENGENHEIRO CALDAS' },
   { local: '4170', nome: 'FERNANDES TOURINHO' }, { local: '4109', nome: 'FREI INOCENCIO' },
   { local: '4538', nome: 'FREI LAGO NEGRO' }, { local: '4110', nome: 'GALILEIA' },
-  { local: '4194', nome: 'GOIABEIRA' },       { local: '4186', nome: 'GONZAGA' },
+  { local: '4194', nome: 'GOIABEIRA' }, { local: '4186', nome: 'GONZAGA' },
   { local: '4101', nome: 'GOVERNADOR VALADARES' }, { local: '4103', nome: 'ITABIRINHA DE MANTENA' },
-  { local: '4174', nome: 'ITANHOMI' },        { local: '4161', nome: 'ITUETA' },
-  { local: '4410', nome: 'JAMPRUCA' },        { local: '4558', nome: 'JATAI' },
-  { local: '4199', nome: 'JOSE RAYDAN' },     { local: '4189', nome: 'MANTENA' },
-  { local: '4175', nome: 'MARILAC' },         { local: '4115', nome: 'MATHIAS LOBATO' },
+  { local: '4174', nome: 'ITANHOMI' }, { local: '4161', nome: 'ITUETA' },
+  { local: '4410', nome: 'JAMPRUCA' }, { local: '4558', nome: 'JATAI' },
+  { local: '4199', nome: 'JOSE RAYDAN' }, { local: '4189', nome: 'MANTENA' },
+  { local: '4175', nome: 'MARILAC' }, { local: '4115', nome: 'MATHIAS LOBATO' },
   { local: '4104', nome: 'MENDES PIMENTEL' }, { local: '4177', nome: 'NACIP RAYDAN' },
-  { local: '4506', nome: 'NOVA BELEM' },      { local: '4183', nome: 'PAULISTAS' },
-  { local: '4128', nome: 'PECANHA' },         { local: '4157', nome: 'RESPLENDOR' },
+  { local: '4506', nome: 'NOVA BELEM' }, { local: '4183', nome: 'PAULISTAS' },
+  { local: '4128', nome: 'PECANHA' }, { local: '4157', nome: 'RESPLENDOR' },
   { local: '4185', nome: 'SANTA EFIGENIA DE MINAS' }, { local: '4132', nome: 'SANTA MARIA DO SUACUI' },
   { local: '4158', nome: 'SANTA RITA DO ITUETO' }, { local: '4191', nome: 'SAO FELIX DE MINAS' },
   { local: '4187', nome: 'SAO GERALDO DA PIEDADE' }, { local: '4535', nome: 'SAO GERALDO DO BAIXIO' },
@@ -77,8 +78,8 @@ export const MUNICIPIOS = [
   { local: '4131', nome: 'SAO JOAO EVANGELISTA' }, { local: '4176', nome: 'SAO JOSE DA SAFIRA' },
   { local: '4163', nome: 'SAO JOSE DO JACURI' }, { local: '4134', nome: 'SAO PEDRO DO SUACUI' },
   { local: '4172', nome: 'SAO SEBASTIAO DO MARANHAO' }, { local: '4184', nome: 'SARDOA' },
-  { local: '4169', nome: 'SOBRALIA' },        { local: '4235', nome: 'TARUMIRIM' },
-  { local: '4532', nome: 'TIPITI' },          { local: '4114', nome: 'TUMIRITINGA' },
+  { local: '4169', nome: 'SOBRALIA' }, { local: '4235', nome: 'TARUMIRIM' },
+  { local: '4532', nome: 'TIPITI' }, { local: '4114', nome: 'TUMIRITINGA' },
   { local: '4173', nome: 'VIRGOLANDIA' },
 ];
 
@@ -87,7 +88,7 @@ const MUNICIPIO_MAP = Object.fromEntries(MUNICIPIOS.map((m) => [m.local, m.nome]
 // ---------------------------------------------------------------------------
 // Postos de supervisão (nome → posto)
 // ---------------------------------------------------------------------------
-const POSTOS = {
+export const POSTOS = {
   'Posto 1 — Pedro': [
     'FREI INOCENCIO', 'ALPERCATA', 'ALVARENGA', 'CAPITAO ANDRADE', 'ENGENHEIRO CALDAS',
     'FERNANDES TOURINHO', 'GOVERNADOR VALADARES', 'ITANHOMI', 'JAMPRUCA', 'JATAI',
@@ -120,6 +121,18 @@ Object.entries(POSTOS).forEach(([posto, cidades]) => {
 // ---------------------------------------------------------------------------
 // Helpers de parsing
 // ---------------------------------------------------------------------------
+
+/**
+ * Extrai a amperagem numérica de uma string de disjuntor.
+ * Suporta "100 A", "100A", ou número puro "100".
+ */
+function amperageOf(str) {
+  if (!str) return null;
+  const mA = str.match(/(\d+)\s*A/i);
+  if (mA) return parseInt(mA[1], 10);
+  const n = parseInt(str, 10);
+  return isNaN(n) ? null : n;
+}
 
 /**
  * Converte string "HH:MM" ou " HH:MM" ou "-HH:MM" para minutos.
@@ -207,51 +220,72 @@ export function joinPmalData(notaArray, servicoArray, turmaArray) {
     // prazoAtual  = prazo total permitido (ex: "120:00")
     // tempoPendencia = tempo já consumido  (ex: "112:43")
     // remainingMin   = quanto ainda resta  (pode ser negativo se vencido)
-    const prazoAtualMin     = parseHHMM(row.prazoAtual);     // total permitido
+    const prazoAtualMin = parseHHMM(row.prazoAtual);     // total permitido
     const tempoPendenciaMin = parseHHMM(row.tempoPendencia); // consumido
-    const remainingMin      = prazoAtualMin - tempoPendenciaMin; // restante
+    const remainingMin = prazoAtualMin - tempoPendenciaMin; // restante
 
     const vencido = remainingMin <= 0;
 
     // Localidade
-    const localStr   = String(row.local || '');
-    const municipio  = MUNICIPIO_MAP[localStr] || localStr;
-    const posto      = CIDADE_TO_POSTO[municipio] || null;
+    const localStr = String(row.local || '');
+    const municipio = MUNICIPIO_MAP[localStr] || localStr;
+    const posto = CIDADE_TO_POSTO[municipio] || null;
 
-    // Disjuntor da nota (pode ser string com espaços)
-    const disjuntorRaw = notaRow?.disjuntor;
-    const disjuntor    = disjuntorRaw && disjuntorRaw.trim() ? disjuntorRaw.trim() : null;
+    // Disjuntor da nota (pode ser string com espaços) — tenta nota e depois servico
+    const disjuntorRaw = (notaRow?.disjuntor) || (row.disjuntor);
+    const disjuntor = disjuntorRaw && String(disjuntorRaw).trim() ? String(disjuntorRaw).trim() : null;
+    const disjuntorAmps = amperageOf(disjuntor);
+
+    // Fases — tenta vários nomes possíveis do endpoint, priorizando numeroFases do endpoint notaservico
+    const fasesRaw = notaRow?.numeroFases
+      ?? notaRow?.quantidadeFase
+      ?? notaRow?.numFases
+      ?? notaRow?.numeroFase
+      ?? notaRow?.qtdFases
+      ?? row?.quantidadeFase
+      ?? row?.numFases
+      ?? null;
+    const quantidadeFase = fasesRaw != null ? parseInt(fasesRaw, 10) || null : null;
+
+    // R\u00f3tulo do disjuntor: "{fases}x{amps}A" ou "{amps}A" se sem fases
+    const disjuntorLabel = disjuntorAmps
+      ? (quantidadeFase ? `${quantidadeFase}x${disjuntorAmps}A` : `${disjuntorAmps}A`)
+      : (disjuntor || '—');
 
     result.push({
-      numeroServico:         row.numeroServico,
-      tipoServico:           row.tipoServico,
-      tipoDescricao:         PMAL_TYPE_MAP[row.tipoServico] || row.tipoServico,
-      situacao:              row.situacao || 'P',
+      numeroServico: row.numeroServico,
+      tipoServico: row.tipoServico,
+      tipoDescricao: PMAL_TYPE_MAP[row.tipoServico] || row.tipoServico,
+      situacao: row.situacao || 'P',
       municipio,
-      local:                 localStr,
+      local: localStr,
       posto,
-      bairro:                row.bairro || '',
-      endereco:              row.endereco || '',
-      numero:                row.numero || '',
-      tipoArea:              row.tipoArea || 'U',
-      dataCadastro:          new Date(row.dataReclamacao || row.dataDesignacao || Date.now()),
+      bairro: row.bairro || '',
+      endereco: row.endereco || '',
+      numero: row.numero || '',
+      tipoArea: row.tipoArea || 'U',
+      dataCadastro: new Date(row.dataReclamacao || row.dataDesignacao || Date.now()),
       tempoPendenciaMin,
       prazoAtualMin,
       remainingMin,
       vencido,
-      bucket:                bucketFromRemaining(remainingMin / 60),
-      numeroVeiculo:          row.numeroVeiculo || null,
-      eletricista:           turmaRow?.nomeEletricista || null,
-      placa:                 turmaRow?.placa || null,
+      bucket: bucketFromRemaining(remainingMin / 60),
+      numeroVeiculo: row.numeroVeiculo || null,
+      eletricista: turmaRow?.nomeEletricista || null,
+      placa: turmaRow?.placa || null,
       quantidadeReincidencia: parseInt(row.quantidadeReincidencia, 10) || 0,
-      alimentador:           row.alimentador || '',
-      numeroDispositivo:     row.numeroDispositivo || '',
+      alimentador: row.alimentador || '',
+      numeroDispositivo: row.numeroDispositivo || '',
       disjuntor,
-      complemento:           notaRow?.complemento || row.complemento || '',
-      latitude:              row.latitude  ? parseFloat(row.latitude)  : null,
-      longitude:             row.longitude ? parseFloat(row.longitude) : null,
+      disjuntorAmps: disjuntorAmps ?? 0,
+      quantidadeFase,
+      disjuntorLabel,
+      complemento: notaRow?.complemento || row.complemento || '',
+      latitude: row.latitude ? parseFloat(row.latitude) : null,
+      longitude: row.longitude ? parseFloat(row.longitude) : null,
     });
   });
+
 
   return result;
 }

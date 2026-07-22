@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
@@ -14,7 +14,7 @@ import Topbar from '../components/Topbar';
 import { useAuth } from '../context/AuthContext';
 import { usePmalData } from '../hooks/usePmalData';
 import {
-  POSTO_KEYS, MUNICIPIOS,
+  POSTO_KEYS, MUNICIPIOS, POSTOS,
 } from '../data/pmalService';
 
 // ---------------------------------------------------------------------------
@@ -69,6 +69,107 @@ function matchesBusca(d, busca) {
     (d.endereco || '').toUpperCase().includes(q) ||
     String(d.numeroServico).includes(q) ||
     (d.municipio || '').toUpperCase().includes(q)
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Componente LocalidadeSelect — busca com multi-seleção agrupada por posto
+// ---------------------------------------------------------------------------
+function toTitleCase(str) {
+  const exceptions = ['de', 'do', 'da', 'das', 'dos', 'e', 'a', 'o', 'em', 'no', 'na', 'para'];
+  return str.toLowerCase().split(' ')
+    .map((w, i) => (i === 0 || !exceptions.includes(w)) ? w.charAt(0).toUpperCase() + w.slice(1) : w)
+    .join(' ');
+}
+
+function LocalidadeSelect({ selected, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const grouped = useMemo(() => {
+    const q = search.trim().toUpperCase();
+    return POSTO_KEYS.map((posto) => ({
+      posto,
+      cidades: (POSTOS[posto] || []).filter(c => !q || c.includes(q)),
+    })).filter(g => g.cidades.length > 0);
+  }, [search]);
+
+  const toggle = (cidade) => {
+    onChange((prev) => {
+      const next = new Set(prev);
+      if (next.has(cidade)) next.delete(cidade); else next.add(cidade);
+      return next;
+    });
+  };
+
+  const label = selected.size === 0
+    ? 'Todas as localidades'
+    : selected.size === 1
+      ? toTitleCase([...selected][0])
+      : `${selected.size} localidades selecionadas`;
+
+  return (
+    <div className="pmal-locale-select" ref={ref}>
+      <button className="pmal-locale-trigger" onClick={() => setOpen(o => !o)}>
+        <span>{label}</span>
+        <ChevronDown size={13} />
+      </button>
+
+      {open && (
+        <div className="pmal-locale-dropdown">
+          <div className="pmal-locale-search">
+            <Search size={13} />
+            <input
+              autoFocus
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Buscar localidade..."
+            />
+            {search && (
+              <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-faint)', display: 'flex' }}>
+                <X size={12} />
+              </button>
+            )}
+          </div>
+
+          {selected.size > 0 && (
+            <button className="pmal-locale-clear" onClick={() => { onChange(new Set()); setOpen(false); }}>
+              <X size={11} /> Limpar seleção ({selected.size})
+            </button>
+          )}
+
+          <div className="pmal-locale-list">
+            {grouped.map(({ posto, cidades }) => (
+              <div key={posto}>
+                <div className="pmal-locale-posto-header">{posto.toUpperCase()}</div>
+                {cidades.map(c => (
+                  <label key={c} className="pmal-locale-item">
+                    <input
+                      type="checkbox"
+                      checked={selected.has(c)}
+                      onChange={() => toggle(c)}
+                    />
+                    {toTitleCase(c)}
+                  </label>
+                ))}
+              </div>
+            ))}
+            {grouped.length === 0 && (
+              <div className="pmal-locale-empty">Nenhuma localidade encontrada.</div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -274,7 +375,7 @@ export default function PainelPMAL() {
   // Filtros
   const [activeSituacoes, setActiveSituacoes] = useState(new Set(['P', 'D', 'A', 'E', 'F']));
   const [activePostos, setActivePostos] = useState(new Set());
-  const [localidade, setLocalidade] = useState('TODAS');
+  const [localidades, setLocalidades] = useState(new Set());
   const [processo, setProcesso] = useState('TODOS');
   const [area, setArea] = useState('TODAS');
   const [busca, setBusca] = useState('');
@@ -282,10 +383,9 @@ export default function PainelPMAL() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [annotations, setAnnotations] = useState({});
   const [copiedGroup, setCopiedGroup] = useState(null);
-  // Multi-seleção de buckets via clique no gráfico → filtra a lista
   const [activeBuckets, setActiveBuckets] = useState(new Set());
-  // Ordenação de colunas
   const [sortConfig, setSortConfig] = useState({ key: null, dir: 'asc' });
+  const [page, setPage] = useState(0);
 
   const handleSort = (key) => {
     setSortConfig((prev) => ({
@@ -350,11 +450,11 @@ export default function PainelPMAL() {
 
   // Filtros geo/processo/área/busca (sem situação) — usado no donut e postos
   const geoFiltered = useMemo(() => data.filter((d) =>
-    (localidade === 'TODAS' || d.municipio === localidade) &&
+    (localidades.size === 0 || localidades.has(d.municipio)) &&
     (processo === 'TODOS' || PROCESSO_GROUPS[processo]?.includes(d.tipoServico)) &&
     (area === 'TODAS' || d.tipoArea === (area === 'URBANA' ? 'U' : 'R')) &&
     matchesBusca(d, busca)
-  ), [data, localidade, processo, area, busca]);
+  ), [data, localidades, processo, area, busca]);
 
   const situacaoCounts = useMemo(() => {
     const counts = { P: 0, D: 0, A: 0, E: 0, F: 0 };
@@ -427,24 +527,21 @@ export default function PainelPMAL() {
 
   const materialPesado = useMemo(() =>
     listFiltered
-      .filter((d) => (amperageOf(d.disjuntor) || 0) >= 100)
-      .sort((a, b) => (amperageOf(b.disjuntor) || 0) - (amperageOf(a.disjuntor) || 0)),
+      .filter((d) => d.disjuntorAmps >= 100)
+      .sort((a, b) => b.disjuntorAmps - a.disjuntorAmps),
     [listFiltered]);
 
   const servicosConjunto = useMemo(() => {
     const groups = {};
-    listFiltered.forEach((d) => {
-      const key = `${d.endereco}|${d.numero}|${d.municipio}`;
-      if (!groups[key]) groups[key] = { endereco: d.endereco, numero: d.numero, municipio: d.municipio, itens: [] };
-      groups[key].itens.push(d);
-    });
+    listFiltered
+      .filter((d) => d.tipoArea === 'U')
+      .forEach((d) => {
+        const key = `${d.endereco}|${d.numero}|${d.municipio}`;
+        if (!groups[key]) groups[key] = { endereco: d.endereco, numero: d.numero, municipio: d.municipio, itens: [] };
+        groups[key].itens.push(d);
+      });
     return Object.values(groups).filter((g) => g.itens.length > 1).sort((a, b) => b.itens.length - a.itens.length);
   }, [listFiltered]);
-
-  const localidadesDisponiveis = useMemo(() => {
-    const set = new Set(geoFiltered.map((d) => d.municipio));
-    return Array.from(set).sort();
-  }, [geoFiltered]);
 
   const copyGroup = (group, idx) => {
     const text = group.itens.map((i) => i.numeroServico).join(',');
@@ -460,6 +557,7 @@ export default function PainelPMAL() {
 
   // Lista com ordenação aplicada
   const sortedList = useMemo(() => {
+    setPage(0); // reset paginação ao mudar filtro/sort
     if (!sortConfig.key) return listFiltered;
     return [...listFiltered].sort((a, b) => {
       let va = a[sortConfig.key];
@@ -472,7 +570,12 @@ export default function PainelPMAL() {
       if (va > vb) return sortConfig.dir === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [listFiltered, sortConfig]);
+  }, [listFiltered, sortConfig]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const PAGE_SIZE = 100;
+  const totalPages = Math.ceil(sortedList.length / PAGE_SIZE);
+  const pageItems = sortedList.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
 
   // ---------------------------------------------------------------------------
   // Render
@@ -491,7 +594,7 @@ export default function PainelPMAL() {
       <div className="main">
         <Topbar
           title="Painel PMAL"
-          subtitle="PRAZO MÉDIO DE ATENDIMENTO DE LIGAÇÃO — NEC"
+          subtitle="PERCENTUAL DE MUNICÍPIOS FORA DA META ANEEL - LIGAÇÃO"
           ocorrenciasFiltradas={[]}
           filtroLabel="PMAL"
         />
@@ -511,7 +614,7 @@ export default function PainelPMAL() {
           <div className="pmal-header">
             <div>
               <div className="pmal-header-tag">
-                <Zap size={14} /> PMAL · PRAZO MÉDIO DE ATENDIMENTO DE LIGAÇÃO
+                <Zap size={14} /> PMAL · PERCENTUAL DE MUNICÍPIOS FORA DA META ANEEL - LIGAÇÃO
               </div>
               <h1 className="pmal-header-title">Painel do Operador</h1>
             </div>
@@ -653,17 +756,7 @@ export default function PainelPMAL() {
 
               {/* Filtros */}
               <div className="pmal-card pmal-filters">
-                <div className="pmal-filter-select-wrap">
-                  <select
-                    value={localidade}
-                    onChange={(e) => setLocalidade(e.target.value)}
-                    className="pmal-select"
-                  >
-                    <option value="TODAS">Todas as localidades</option>
-                    {localidadesDisponiveis.map((m) => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                  <ChevronDown size={14} className="pmal-select-chevron" />
-                </div>
+                <LocalidadeSelect selected={localidades} onChange={setLocalidades} />
 
                 <div className="pmal-filter-select-wrap">
                   <select
@@ -832,32 +925,58 @@ export default function PainelPMAL() {
                 </div>
 
                 {/* Material pesado */}
-                <div className="pmal-card">
+                <div className="pmal-card pmal-matpes-card">
                   <div className="pmal-card-head">
-                    <span className="pmal-card-title pmal-flex-gap">
-                      <Layers size={16} style={{ color: '#667085' }} /> Material pesado
+                    <span className="pmal-card-title pmal-flex-gap" style={{ fontWeight: 800, letterSpacing: '.04em', fontSize: 12, textTransform: 'uppercase' }}>
+                      <span style={{ display: 'inline-block', width: 3, height: 14, background: 'var(--navy)', borderRadius: 2 }} />
+                      Material pesado
                     </span>
                     <span className="pmal-count-badge">{materialPesado.length}</span>
                   </div>
-                  <div className="pmal-scroll-list">
+                  <div className="pmal-matpes-list">
                     {materialPesado.length === 0 && (
                       <div className="pmal-empty-msg">Nenhum serviço com disjuntor ≥ 100A no filtro atual.</div>
                     )}
-                    {materialPesado.slice(0, 20).map((d) => (
+                    {materialPesado.slice(0, 30).map((d) => (
                       <button
                         key={d.numeroServico}
                         onClick={() => setSelectedRow(d)}
-                        className="pmal-list-row"
+                        className="pmal-matpes-item"
                       >
-                        <span>
-                          <span className="pmal-mono-badge-dark">{d.disjuntor}</span>
-                          {d.tipoServico}
-                        </span>
-                        <span className="pmal-num-mono">#{d.numeroServico}</span>
+                        {/* Linha superior: tipo + nº serviço */}
+                        <div className="pmal-matpes-top">
+                          <span className="pmal-matpes-tipo">{d.tipoServico}</span>
+                          <span className="pmal-matpes-num">{d.numeroServico}</span>
+                        </div>
+
+                        {/* Label de fases × amperes */}
+                        <div className="pmal-matpes-amps">{d.disjuntorLabel}</div>
+
+                        {/* Rodapé: badges + localidade + prazo */}
+                        <div className="pmal-matpes-footer">
+                          <span className="pmal-matpes-badge-gv">GV</span>
+                          <span
+                            className="pmal-matpes-badge-status"
+                            style={{
+                              backgroundColor: SITUACOES[d.situacao]?.color || '#98A2B3',
+                            }}
+                          >
+                            {d.situacao}
+                          </span>
+                          <span className="pmal-matpes-loc">
+                            {d.municipio ? d.municipio.split(' ')[0] : '—'}
+                          </span>
+                          <span className="pmal-matpes-prazo">
+                            {d.vencido
+                              ? <span style={{ color: '#C4342A', fontWeight: 600 }}>Vencido</span>
+                              : d.bucket}
+                          </span>
+                        </div>
                       </button>
                     ))}
                   </div>
                 </div>
+
 
                 {/* Serviços em conjunto */}
                 <div className="pmal-card">
@@ -912,6 +1031,16 @@ export default function PainelPMAL() {
                   </span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span className="pmal-card-hint">{sortedList.length} serviço(s)</span>
+                    {sortConfig.key && (
+                      <button
+                        className="btn btn-outline"
+                        style={{ fontSize: 12, padding: '5px 10px', display: 'flex', alignItems: 'center', gap: 5 }}
+                        onClick={() => setSortConfig({ key: null, dir: 'asc' })}
+                        title="Limpar ordenação"
+                      >
+                        <X size={11} /> Limpar ordem
+                      </button>
+                    )}
                     <button
                       className="btn btn-outline"
                       style={{ fontSize: 12, padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
@@ -951,7 +1080,7 @@ export default function PainelPMAL() {
                       </tr>
                     </thead>
                     <tbody>
-                      {sortedList.slice(0, 100).map((d) => (
+                      {pageItems.map((d) => (
                         <tr
                           key={d.numeroServico}
                           className="pmal-table-row"
@@ -988,9 +1117,28 @@ export default function PainelPMAL() {
                     </tbody>
                   </table>
                 </div>
-                {sortedList.length > 100 && (
-                  <div className="pmal-table-footer">
-                    Mostrando 100 de {sortedList.length} — adicionar paginação se necessário
+                {/* Paginação */}
+                {sortedList.length > 0 && (
+                  <div className="pmal-pagination">
+                    <button
+                      className="pmal-page-btn"
+                      onClick={() => setPage(p => Math.max(0, p - 1))}
+                      disabled={page === 0}
+                    >
+                      ← Anterior
+                    </button>
+                    <span className="pmal-page-info">
+                      Página {page + 1} de {totalPages}
+                      &nbsp;·&nbsp;
+                      {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, sortedList.length)} de {sortedList.length}
+                    </span>
+                    <button
+                      className="pmal-page-btn"
+                      onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                      disabled={page >= totalPages - 1}
+                    >
+                      Próxima →
+                    </button>
                   </div>
                 )}
                 {sortedList.length === 0 && !loading && (
